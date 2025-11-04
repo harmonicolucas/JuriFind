@@ -133,6 +133,22 @@ export function createHandler({
         return;
       }
 
+      if (url.pathname === "/api/lawyers" && req.method === "GET") {
+        const index = await getIndex();
+        const lawyers = index.lawyers
+          .map((lawyer) => ({
+            id: lawyer.id,
+            name: lawyer.name,
+            areas: lawyer.areas,
+            locations: lawyer.locations,
+            languages: lawyer.languages,
+            photo: lawyer.photoUrl ? `/api/photos/${lawyer.id}` : null,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name, "pt"));
+        sendJson(res, 200, { lawyers });
+        return;
+      }
+
       if (url.pathname === "/api/recommend" && req.method === "POST") {
         if (!allow(clientKey(req, config.trustProxy))) {
           sendJson(res, 429, { error: "Muitos pedidos. Tente novamente dentro de alguns minutos." }, { "Retry-After": "60" });

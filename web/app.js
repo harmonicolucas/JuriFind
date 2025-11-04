@@ -13,6 +13,10 @@ const counter = document.querySelector("#contador");
 const suggestions = document.querySelector("#sugestoes");
 const filters = document.querySelector("#personalizar");
 const filterButton = document.querySelector("#abrir-filtros");
+const directory = document.querySelector("#directorio");
+const directoryList = document.querySelector("#directorio-lista");
+const directoryStatus = document.querySelector("#directorio-estado");
+const directorySearch = document.querySelector("#procurar-advogado");
 const historyList = document.querySelector("#historico");
 const historyEmpty = document.querySelector("#historico-vazio");
 const areaList = document.querySelector("#lista-areas");
@@ -89,7 +93,8 @@ function lawyerCard(lawyer) {
   const languages = lawyer.languages?.length ? ` · ${lawyer.languages.join(", ")}` : "";
   body.append(el("p", "place", `${places}${languages}`));
   const chips = el("ul", "chips");
-  for (const area of lawyer.matchedAreas || []) chips.append(el("li", null, area));
+  const areas = lawyer.matchedAreas?.length ? lawyer.matchedAreas : (lawyer.areas || []).slice(0, 3);
+  for (const area of areas) chips.append(el("li", null, area));
   if (chips.childElementCount) body.append(chips);
   if (lawyer.explanation) body.append(el("p", "explanation", lawyer.explanation));
   const phone = typeof lawyer.phone === "string" && /^\+258 \d{3} \d{3} \d{3}$/.test(lawyer.phone) ? lawyer.phone : "";
@@ -163,6 +168,58 @@ function applyTheme(theme) {
 }
 
 let busy = false;
+let catalogue = null;
+
+function foldQuery(value) {
+  return String(value).normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+}
+
+function showView(panel) {
+  const assistant = panel !== "advogados";
+  document.querySelector("#conversa").hidden = !assistant;
+  form.hidden = !assistant;
+  directory.hidden = assistant;
+  document.querySelector(".top-title").textContent = assistant ? "Assistente jurídico" : "Advogados";
+}
+
+function paintDirectory(query = "") {
+  const needle = foldQuery(query.trim());
+  const visible = (catalogue || []).filter((lawyer) => {
+    if (!needle) return true;
+    const hay = foldQuery([lawyer.name, ...(lawyer.areas || []), ...(lawyer.locations || []), ...(lawyer.languages || [])].join(" "));
+    return hay.includes(needle);
+  });
+  directoryList.replaceChildren(...visible.map((lawyer) => lawyerCard(lawyer)));
+  directoryStatus.textContent = visible.length
+    ? `${visible.length} ${visible.length === 1 ? "advogado" : "advogados"}`
+    : "Nenhum advogado corresponde a essa pesquisa.";
+}
+
+async function showLawyers() {
+  showView("advogados");
+  if (catalogue) {
+    paintDirectory(directorySearch.value);
+    directorySearch.focus();
+    return;
+  }
+  directoryStatus.textContent = "A carregar advogados…";
+  directoryList.replaceChildren();
+  try {
+    const response = await fetch(api("/api/lawyers"));
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("A lista de advogados não está acessível neste momento.");
+    }
+    if (!response.ok) throw new Error(data.error || "Não foi possível obter os advogados.");
+    catalogue = data.lawyers || [];
+    paintDirectory("");
+    directorySearch.focus();
+  } catch (error) {
+    directoryStatus.textContent = error.message;
+  }
+}
 
 async function ask(text) {
   if (busy) return;
@@ -282,8 +339,9 @@ for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
   item.addEventListener("click", () => {
     const panel = item.dataset.panel;
     setActive(panel);
+    if (panel === "advogados") showLawyers();
+    else showView("assistente");
     if (panel === "assistente") description.focus();
-    if (panel === "advogados") document.querySelector(".cards")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 }
 themeButton.addEventListener("click", () => {
@@ -297,7 +355,11 @@ newChatButton.addEventListener("click", () => {
   formError.textContent = "";
   description.value = "";
   updateCount();
+  showView("assistente");
   setActive("assistente");
+});
+directorySearch.addEventListener("input", () => {
+  if (catalogue) paintDirectory(directorySearch.value);
 });
 
 applyTheme(localStorage.getItem("jurifind-theme") === "dark" ? "dark" : "light");

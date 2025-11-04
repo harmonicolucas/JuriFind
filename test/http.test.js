@@ -94,6 +94,12 @@ test("a página pública recomenda sem mostrar a origem dos dados", async (t) =>
   assert.equal(JSON.stringify(data).toLowerCase().includes("encontreadvogados"), false);
   assert.match(data.results[0].explanation, /Laboral/);
   assert.equal(data.results[0].explanation.includes("Energia"), false);
+  const catalogue = await fetch(`${ctx.base}/api/lawyers`);
+  const catalogueData = await catalogue.json();
+  assert.equal(catalogue.status, 200);
+  assert.deepEqual(catalogueData.lawyers.map((lawyer) => lawyer.name), ["Ilda Tembe", "Tomás Timbane"]);
+  assert.equal(JSON.stringify(catalogueData).toLowerCase().includes("encontreadvogados"), false);
+
   assert.equal(data.disclaimer, undefined);
   assert.equal(/não substituem/i.test(JSON.stringify(data)), false);
 });
