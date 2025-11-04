@@ -139,7 +139,7 @@
   function listCourts() {
     const box = el("div", "entry-list");
     for (const court of corpus.courts) box.append(courtCard(court));
-    layout("Jurisprudência", "Mapa dos tribunais moçambicanos e da matéria que cada um trata. Esta secção não inventa acórdãos.", [box]);
+    layout("Tribunais", "Mapa dos tribunais moçambicanos e da matéria de cada um. Não há acórdãos inventados nesta secção.", [box]);
   }
 
   function listTerms() {
@@ -155,10 +155,9 @@
   }
 
   function listNews() {
-    const note = el("p", "vista-intro", "A fonte oficial das leis é o Boletim da República. As notas abaixo repetem apenas diplomas já publicados.");
     const box = el("div", "entry-list");
     for (const update of corpus.updates) box.append(updateCard(update));
-    layout("Notícias legislativas", "", [note, box]);
+    layout("Notícias legislativas", "Só entram diplomas já publicados no Boletim da República.", [box]);
   }
 
   let quizIndex = 0;
