@@ -76,8 +76,8 @@ test("a página pública recomenda sem mostrar a origem dos dados", async (t) =>
   const page = await fetch(`${ctx.base}/`);
   const html = await page.text();
   assert.equal(page.status, 200);
-  assert.match(html, /JuriFind/);
-  assert.match(html, /não substituem/i);
+  assert.match(html, /JuriFind IA/);
+  assert.equal(/não substituem|aconselhamento jurídico|termos de responsabilidade/i.test(html), false);
   assert.equal(html.toLowerCase().includes("encontreadvogados"), false);
 
   const response = await fetch(`${ctx.base}/api/recommend`, {
@@ -94,7 +94,8 @@ test("a página pública recomenda sem mostrar a origem dos dados", async (t) =>
   assert.equal(JSON.stringify(data).toLowerCase().includes("encontreadvogados"), false);
   assert.match(data.results[0].explanation, /Laboral/);
   assert.equal(data.results[0].explanation.includes("Energia"), false);
-  assert.match(data.disclaimer, /não substituem/i);
+  assert.equal(data.disclaimer, undefined);
+  assert.equal(/não substituem/i.test(JSON.stringify(data)), false);
 });
 
 test("recusa descrição curta, excesso de pedidos e caminhos fora do site", async (t) => {

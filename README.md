@@ -1,6 +1,6 @@
-# JuriFind
+# JuriFind IA
 
-O JuriFind recomenda advogados em Moçambique a partir de uma descrição livre do caso, em português. A ordenação usa apenas áreas de prática, localização e línguas publicadas no directório [Encontre Advogados](https://encontreadvogados.co.mz/advogado/). Não inventa especialidades, não copia biografias e não substitui aconselhamento jurídico.
+O JuriFind IA é um software moçambicano que recomenda advogados a partir de uma descrição livre do caso, em português. A ordenação usa apenas áreas de prática, localização e línguas publicadas no directório [Encontre Advogados](https://encontreadvogados.co.mz/advogado/). Não inventa especialidades e não copia biografias.
 
 ## O que faz
 

@@ -3,119 +3,97 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JuriFind — Advogados para o seu caso em Moçambique</title>
-  <meta name="description" content="Descreva o seu caso jurídico e veja advogados ordenados pela área, pela cidade e pelas línguas do perfil.">
+  <title>JuriFind IA — Software moçambicano</title>
+  <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
-  <a class="skip" href="#caso">Saltar para a descrição do caso</a>
-  <header class="site-header">
-    <div class="wrap header-bar">
-      <a class="brand" href="#topo">
+  <a class="skip" href="#mensagem">Saltar para a mensagem</a>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar">
+      <a class="brand" href="#conversa">
         <span class="mark" aria-hidden="true">JF</span>
         <span>
-          <strong>JuriFind</strong>
-          <small>Advogados em Moçambique</small>
+          <strong>JuriFind IA</strong>
+          <small>Software moçambicano</small>
         </span>
       </a>
       <nav aria-label="Secções">
-        <a href="#caso">Descrever o caso</a>
-        <a href="#como">Como funciona</a>
-        <a href="#aviso">Aviso</a>
+        <p class="nav-label">Consultar</p>
+        <button type="button" class="nav-item is-active" data-panel="assistente">Assistente</button>
+        <button type="button" class="nav-item" data-panel="advogados">Advogados</button>
+        <p class="nav-label">Refinar</p>
+        <button type="button" class="nav-item" data-panel="areas">Áreas</button>
+        <button type="button" class="nav-item" data-panel="cidades">Cidades</button>
       </nav>
-    </div>
-  </header>
+      <div id="painel-areas" class="side-panel" hidden>
+        <p class="side-title">Áreas</p>
+        <div id="lista-areas" class="chip-list"></div>
+      </div>
+      <div id="painel-cidades" class="side-panel" hidden>
+        <p class="side-title">Cidades</p>
+        <div id="lista-cidades" class="chip-list"></div>
+      </div>
+      <div class="side-foot">
+        <button type="button" id="tema" class="nav-item">Tema escuro</button>
+        <button type="button" id="nova" class="nav-item">Nova conversa</button>
+      </div>
+    </aside>
 
-  <main id="topo">
-    <section class="hero">
-      <div class="wrap hero-grid">
-        <div class="intro">
-          <p class="eyebrow">Moçambique</p>
-          <h1>Descreva o caso. Encontre quem actua nessa área.</h1>
-          <p class="lede">Escreva com as suas palavras. O JuriFind identifica a área, a cidade e a língua, e apresenta os advogados cuja prática publicada corresponde ao relato.</p>
-          <ul class="points">
-            <li>A ordem reflecte a correspondência com o perfil, não a qualidade profissional.</li>
-            <li>A fotografia aparece quando faz parte do perfil.</li>
-            <li>O texto do caso não fica guardado.</li>
-          </ul>
+    <main class="workspace">
+      <header class="topbar">
+        <button type="button" id="menu" class="icon-button" aria-expanded="false" aria-controls="sidebar">Menu</button>
+        <p class="top-title">Assistente jurídico</p>
+        <p class="top-note">Moçambique</p>
+      </header>
+
+      <div id="conversa" class="thread">
+        <div id="boas-vindas" class="welcome">
+          <h1>JuriFind IA</h1>
+          <p>Software moçambicano. Descreva o caso e veja advogados cuja prática publicada corresponde ao relato.</p>
+          <div id="sugestoes" class="suggestions"></div>
         </div>
+        <div id="mensagens" class="messages" aria-live="polite"></div>
+      </div>
 
-        <form id="caso" class="case-form">
-          <div class="form-head">
-            <h2>O seu caso</h2>
-            <p id="dica">Conte o que aconteceu, onde e o que procura. Evite números de identificação, dados de saúde e contactos de terceiros.</p>
+      <form id="caso" class="composer">
+        <div id="personalizar" class="personalize" hidden>
+          <div>
+            <label for="area">Área</label>
+            <select id="area" name="area">
+              <option value="">Identificar a partir do texto</option>
+            </select>
           </div>
-          <label for="descricao">Descrição</label>
-          <textarea id="descricao" name="descricao" required minlength="20" maxlength="2000" rows="7" aria-describedby="dica" placeholder="Exemplo: trabalhei dois anos numa loja na Matola e fui despedido sem carta. Não recebi os salários dos últimos três meses."></textarea>
-          <div class="filters">
-            <div>
-              <label for="area">Área, se já a conhecer</label>
-              <select id="area" name="area">
-                <option value="">Identificar a partir do texto</option>
-              </select>
-            </div>
-            <div>
-              <label for="localizacao">Localização preferida</label>
-              <select id="localizacao" name="localizacao">
-                <option value="">Sem preferência</option>
-              </select>
-            </div>
+          <div>
+            <label for="localizacao">Cidade</label>
+            <select id="localizacao" name="localizacao">
+              <option value="">Sem preferência</option>
+            </select>
           </div>
           <label class="check" for="apenas-local">
             <input id="apenas-local" name="apenas-local" type="checkbox" disabled>
-            <span>Mostrar primeiro só esta localização</span>
+            <span>Mostrar primeiro só esta cidade</span>
           </label>
-          <button id="submeter" type="submit">Ver advogados adequados</button>
-          <p id="form-error" class="form-error" role="alert"></p>
-        </form>
-      </div>
-    </section>
+        </div>
+        <label class="sr" for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" required minlength="20" maxlength="2000" rows="3" placeholder="Descreva o caso ou faça uma pergunta jurídica..."></textarea>
+        <div class="composer-bar">
+          <button type="button" id="abrir-filtros" class="ghost" aria-expanded="false" aria-controls="personalizar">Filtros</button>
+          <span id="contador" class="count">0/2000</span>
+          <button id="submeter" type="submit">Enviar</button>
+        </div>
+        <p id="form-error" class="form-error" role="alert"></p>
+      </form>
+    </main>
 
-    <section id="resultados" class="results wrap" aria-live="polite" hidden>
-      <div class="results-head">
-        <h2>Advogados para este caso</h2>
-        <p id="resumo"></p>
-      </div>
-      <div id="aviso-resultado" class="notice"></div>
-      <div id="lista" class="cards"></div>
-    </section>
-
-    <section id="como" class="how wrap">
-      <h2>Como funciona</h2>
-      <ol class="steps">
-        <li>
-          <span class="step-no">1</span>
-          <h3>Conte o que aconteceu</h3>
-          <p>Um texto simples chega. Trabalho, família, terra, penal, fisco ou energia são reconhecidos no contexto moçambicano.</p>
-        </li>
-        <li>
-          <span class="step-no">2</span>
-          <h3>Veja a correspondência</h3>
-          <p>Cada cartão mostra a fotografia, a cidade, as línguas e as áreas do perfil que coincidem com o caso.</p>
-        </li>
-        <li>
-          <span class="step-no">3</span>
-          <h3>Contacte directamente</h3>
-          <p>Quando o perfil tem telefone, pode ligar a partir do cartão. A lista não promete que o advogado aceite o caso.</p>
-        </li>
-      </ol>
-    </section>
-
-    <section id="aviso" class="legal wrap">
-      <h2>Aviso</h2>
-      <p id="aviso-fixo">As recomendações correspondem às áreas, à localização e às línguas de cada perfil. Não substituem aconselhamento jurídico de um advogado inscrito na Ordem dos Advogados de Moçambique, nem garantem aceitação do caso ou qualquer resultado.</p>
-      <p>O JuriFind não é um serviço da Ordem dos Advogados de Moçambique. O relato do caso é usado só para esta análise e não fica armazenado.</p>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="wrap footer-bar">
-      <p>JuriFind</p>
-      <p>Recomendações para encontrar advogados em Moçambique.</p>
-    </div>
-  </footer>
+    <aside class="history" aria-label="Histórico da conversa">
+      <h2>Histórico</h2>
+      <p id="historico-vazio" class="history-empty">As perguntas desta visita aparecem aqui.</p>
+      <ol id="historico"></ol>
+    </aside>
+  </div>
   <script src="config.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
