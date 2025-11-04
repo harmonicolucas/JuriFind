@@ -6,7 +6,7 @@
   <title>JuriFind IA — Software moçambicano</title>
   <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <a class="skip" href="#mensagem">Saltar para a mensagem</a>
@@ -57,6 +57,16 @@
         <div id="mensagens" class="messages" aria-live="polite"></div>
       </div>
 
+      <section id="directorio" class="directory" hidden>
+        <div class="directory-head">
+          <h2>Advogados</h2>
+          <label class="sr" for="procurar-advogado">Procurar advogado</label>
+          <input id="procurar-advogado" type="search" placeholder="Procurar por nome, área ou cidade" autocomplete="off">
+        </div>
+        <p id="directorio-estado" class="directory-status"></p>
+        <div id="directorio-lista" class="cards"></div>
+      </section>
+
       <form id="caso" class="composer">
         <div id="personalizar" class="personalize" hidden>
           <div>
@@ -94,6 +104,6 @@
     </aside>
   </div>
   <script src="config.js"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

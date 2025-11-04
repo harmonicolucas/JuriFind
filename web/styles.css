@@ -277,6 +277,31 @@ nav { display: grid; gap: 4px; }
   font-weight: 650;
 }
 
+.directory {
+  flex: 1;
+  overflow: auto;
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 22px 0 28px;
+}
+.directory-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.directory-head h2 { margin: 0; font-size: 1.4rem; }
+.directory-head input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 10px 12px;
+}
+.directory-status { margin: 0 0 12px; color: var(--muted); }
+.directory .cards { margin-top: 0; }
+
 .composer {
   width: min(860px, calc(100% - 32px));
   margin: 0 auto 18px;
