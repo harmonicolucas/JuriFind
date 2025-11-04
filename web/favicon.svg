@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="JuriFind">
+  <rect width="64" height="64" rx="14" fill="#17324d"/>
+  <path d="M18 44V20h10.5c6.2 0 10 3.2 10 8.2 0 5.2-3.8 8.4-10.2 8.4H24.2V44H18zm6.2-12.2h3.8c3 0 4.7-1.4 4.7-3.6s-1.7-3.5-4.7-3.5h-3.8v7.1zM40.2 44V20H52v5.2h-5.6V44h-6.2z" fill="#f4efe6"/>
+</svg>

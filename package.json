@@ -1,0 +1,14 @@
+{
+  "name": "jurifind",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Recomendação de advogados em Moçambique a partir da descrição do caso, com dados públicos do directório de origem.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test"
+  }
+}
