@@ -9,8 +9,6 @@ import { fold } from "./text.js";
 import { validateRecommendInput } from "./validate.js";
 import { safeWebPath } from "./paths.js";
 
-const DISCLAIMER = "As recomendações correspondem às áreas, à localização e às línguas de cada perfil. Não substituem aconselhamento jurídico de um advogado inscrito na Ordem dos Advogados de Moçambique, nem garantem aceitação do caso ou qualquer resultado.";
-
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -128,7 +126,6 @@ export function createHandler({
         const usedLocations = new Set(index.lawyers.flatMap((lawyer) => lawyer.locations));
         const usedAreas = new Set(index.lawyers.flatMap((lawyer) => lawyer.areas));
         sendJson(res, 200, {
-          disclaimer: DISCLAIMER,
           llm: Boolean(config.llmApiKey),
           locations: index.locations.map((item) => item.name).filter((name) => usedLocations.has(name)),
           areas: index.areas.map((item) => item.name).filter((name) => usedAreas.has(name)),
@@ -175,7 +172,6 @@ export function createHandler({
           : [];
 
         sendJson(res, 200, {
-          disclaimer: DISCLAIMER,
           analysis: {
             areas: analysis.areas,
             locations: analysis.locations,

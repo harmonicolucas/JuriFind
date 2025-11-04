@@ -1,16 +1,33 @@
 const config = window.JURIFIND_CONFIG || {};
 const apiBase = String(config.apiBase || "").replace(/\/$/, "");
 const form = document.querySelector("#caso");
-const description = document.querySelector("#descricao");
+const description = document.querySelector("#mensagem");
 const areaSelect = document.querySelector("#area");
 const locationSelect = document.querySelector("#localizacao");
 const strictLocation = document.querySelector("#apenas-local");
 const submitButton = document.querySelector("#submeter");
 const formError = document.querySelector("#form-error");
-const results = document.querySelector("#resultados");
-const summary = document.querySelector("#resumo");
-const notice = document.querySelector("#aviso-resultado");
-const list = document.querySelector("#lista");
+const welcome = document.querySelector("#boas-vindas");
+const messages = document.querySelector("#mensagens");
+const counter = document.querySelector("#contador");
+const suggestions = document.querySelector("#sugestoes");
+const filters = document.querySelector("#personalizar");
+const filterButton = document.querySelector("#abrir-filtros");
+const historyList = document.querySelector("#historico");
+const historyEmpty = document.querySelector("#historico-vazio");
+const areaList = document.querySelector("#lista-areas");
+const cityList = document.querySelector("#lista-cidades");
+const sidebar = document.querySelector("#sidebar");
+const menuButton = document.querySelector("#menu");
+const themeButton = document.querySelector("#tema");
+const newChatButton = document.querySelector("#nova");
+const limit = 2000;
+
+const prompts = [
+  "Trabalhei dois anos numa loja na Matola e fui despedido sem carta. Não recebi os salários dos últimos três meses.",
+  "Quero o divórcio na Beira. Temos dois filhos menores e não há acordo sobre a pensão de alimentos.",
+  "O meu vizinho em Maputo ocupa parte do terreno onde tenho o DUAT e recusa sair.",
+];
 
 function api(path) {
   return `${apiBase}${path}`;
@@ -63,88 +80,104 @@ function portrait(lawyer) {
   return frame;
 }
 
-function renderResults(data) {
-  results.hidden = false;
-  list.replaceChildren();
-  const areas = data.analysis?.areas?.length ? data.analysis.areas.join(", ") : "nenhuma área identificada";
-  const topics = data.analysis?.keywords?.length ? ` Temas: ${data.analysis.keywords.join(", ")}.` : "";
-  summary.textContent = `Áreas identificadas: ${areas}.${topics}`;
+function lawyerCard(lawyer) {
+  const card = el("article", "lawyer");
+  card.append(portrait(lawyer));
+  const body = el("div", "card-body");
+  body.append(el("h3", null, lawyer.name));
+  const places = (lawyer.locations || []).join(", ") || "Localização não indicada";
+  const languages = lawyer.languages?.length ? ` · ${lawyer.languages.join(", ")}` : "";
+  body.append(el("p", "place", `${places}${languages}`));
+  const chips = el("ul", "chips");
+  for (const area of lawyer.matchedAreas || []) chips.append(el("li", null, area));
+  if (chips.childElementCount) body.append(chips);
+  if (lawyer.explanation) body.append(el("p", "explanation", lawyer.explanation));
+  const phone = typeof lawyer.phone === "string" && /^\+258 \d{3} \d{3} \d{3}$/.test(lawyer.phone) ? lawyer.phone : "";
+  if (phone) {
+    const actions = el("div", "actions");
+    const call = el("a", null, `Ligar ${phone}`);
+    call.href = `tel:${phone.replace(/\s/g, "")}`;
+    actions.append(call);
+    body.append(actions);
+  }
+  card.append(body);
+  return card;
+}
 
-  let lead = "";
+function summaryText(data) {
   if (data.reason === "need_detail") {
-    lead = "O texto ainda não aponta para uma área. Acrescente o que aconteceu, em que cidade e o que pretende.";
-  } else if (data.reason === "no_lawyer_for_area") {
-    lead = "A área foi identificada, mas nenhum advogado deste índice a indica neste momento.";
-  } else if (data.relaxedLocation) {
-    lead = "Não há correspondência só na localização pedida. A lista inclui advogados de outras cidades.";
-  } else {
-    const count = data.results.length;
-    lead = count === 1
-      ? "1 advogado corresponde às áreas identificadas. A ordem não avalia a qualidade profissional."
-      : `${count} advogados correspondem às áreas identificadas. A ordem não avalia a qualidade profissional.`;
+    return "O texto ainda não aponta para uma área. Acrescente o que aconteceu, em que cidade e o que pretende.";
   }
-  notice.replaceChildren(el("p", null, lead), el("p", null, data.disclaimer || ""));
-
-  for (const lawyer of data.results || []) {
-    const card = el("article", "lawyer");
-    card.append(portrait(lawyer));
-    const body = el("div", "card-body");
-    body.append(el("h3", null, lawyer.name));
-    const places = (lawyer.locations || []).join(", ") || "Localização não indicada";
-    const languages = lawyer.languages?.length ? ` · ${lawyer.languages.join(", ")}` : "";
-    body.append(el("p", "place", `${places}${languages}`));
-    const chips = el("ul", "chips");
-    for (const area of lawyer.matchedAreas || []) chips.append(el("li", null, area));
-    if (chips.childElementCount) body.append(chips);
-    body.append(el("p", "explanation", lawyer.explanation || ""));
-    const phone = typeof lawyer.phone === "string" && /^\+258 \d{3} \d{3} \d{3}$/.test(lawyer.phone) ? lawyer.phone : "";
-    if (phone) {
-      const actions = el("div", "actions");
-      const call = el("a", "button", `Ligar ${phone}`);
-      call.href = `tel:${phone.replace(/\s/g, "")}`;
-      actions.append(call);
-      body.append(actions);
-    }
-    card.append(body);
-    list.append(card);
+  if (data.reason === "no_lawyer_for_area") {
+    return "A área foi identificada, mas nenhum advogado deste índice a indica neste momento.";
   }
-  results.scrollIntoView({ behavior: "smooth", block: "start" });
+  const areas = data.analysis?.areas?.length ? data.analysis.areas.join(", ") : "nenhuma área identificada";
+  const place = data.relaxedLocation ? " A lista inclui outras cidades, porque não houve correspondência só na cidade pedida." : "";
+  const count = data.results?.length || 0;
+  const people = count === 1 ? "1 advogado" : `${count} advogados`;
+  return `Áreas identificadas: ${areas}. ${people} com prática publicada nessa correspondência.${place}`;
 }
 
-async function loadMeta() {
-  try {
-    const response = await fetch(api("/api/meta"));
-    let data = {};
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("A lista de advogados não está acessível neste momento.");
-    }
-    if (!response.ok) throw new Error(data.error || "Não foi possível preparar a pesquisa.");
-    fillSelect(areaSelect, data.areas, "Identificar a partir do texto");
-    fillSelect(locationSelect, data.locations, "Sem preferência");
-    if (data.disclaimer) document.querySelector("#aviso-fixo").textContent = data.disclaimer;
-  } catch (error) {
-    formError.textContent = error.message;
-  }
+function remember(text, anchor) {
+  historyEmpty.hidden = true;
+  const item = document.createElement("li");
+  const button = el("button", null, text.length > 88 ? `${text.slice(0, 88)}…` : text);
+  button.type = "button";
+  button.addEventListener("click", () => anchor.scrollIntoView({ behavior: "smooth", block: "center" }));
+  item.append(button);
+  historyList.append(item);
 }
 
-locationSelect.addEventListener("change", () => {
-  strictLocation.disabled = locationSelect.value === "";
-  if (!locationSelect.value) strictLocation.checked = false;
-});
+function assistantReply(data) {
+  const bubble = el("article", "bubble assistant");
+  bubble.append(el("h2", null, "Advogados para este caso"));
+  bubble.append(el("p", "lead", summaryText(data)));
+  const topics = data.analysis?.keywords || [];
+  if (topics.length) bubble.append(el("p", "meta-line", `Temas: ${topics.join(", ")}.`));
+  if (data.results?.length) {
+    const cards = el("div", "cards");
+    for (const lawyer of data.results) cards.append(lawyerCard(lawyer));
+    bubble.append(cards);
+  }
+  return bubble;
+}
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+function setActive(panel) {
+  for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
+    item.classList.toggle("is-active", item.dataset.panel === panel);
+  }
+  document.querySelector("#painel-areas").hidden = panel !== "areas";
+  document.querySelector("#painel-cidades").hidden = panel !== "cidades";
+  sidebar.classList.remove("is-open");
+  menuButton.setAttribute("aria-expanded", "false");
+}
+
+function updateCount() {
+  counter.textContent = `${description.value.length}/${limit}`;
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  themeButton.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+  localStorage.setItem("jurifind-theme", theme);
+}
+
+let busy = false;
+
+async function ask(text) {
+  if (busy) return;
+  busy = true;
   formError.textContent = "";
-  const text = description.value.trim();
-  if (text.length < 20) {
-    formError.textContent = "Descreva o caso com pelo menos 20 caracteres, sem dados sensíveis desnecessários.";
-    description.focus();
-    return;
-  }
+  welcome.hidden = true;
+  const user = el("article", "bubble user");
+  user.append(el("p", null, text));
+  messages.append(user);
+  remember(text, user);
+  const pending = el("article", "bubble assistant");
+  pending.append(el("p", null, "A analisar o caso…"));
+  messages.append(pending);
+  pending.scrollIntoView({ behavior: "smooth", block: "end" });
   submitButton.disabled = true;
-  submitButton.textContent = "A analisar o caso…";
   try {
     const response = await fetch(api("/api/recommend"), {
       method: "POST",
@@ -160,16 +193,113 @@ form.addEventListener("submit", async (event) => {
     try {
       data = await response.json();
     } catch {
-      throw new Error("O serviço devolveu uma resposta inválida.");
+      throw new Error("A lista de advogados não está acessível neste momento.");
     }
-    if (!response.ok) throw new Error(data.error || "Não foi possível obter recomendações.");
-    renderResults(data);
+    if (!response.ok) throw new Error(data.error || "Não foi possível obter os advogados.");
+    pending.replaceWith(assistantReply(data));
+    description.value = "";
+    updateCount();
+  } catch (error) {
+    pending.replaceWith(el("article", "bubble assistant", error.message));
+  } finally {
+    busy = false;
+    submitButton.disabled = false;
+    messages.lastElementChild?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+}
+
+function renderChoices(container, values, onPick) {
+  container.replaceChildren();
+  for (const value of values || []) {
+    const button = el("button", "chip", value);
+    button.type = "button";
+    button.addEventListener("click", () => onPick(value, button));
+    container.append(button);
+  }
+}
+
+async function loadMeta() {
+  try {
+    const response = await fetch(api("/api/meta"));
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("A lista de advogados não está acessível neste momento.");
+    }
+    if (!response.ok) throw new Error(data.error || "Não foi possível preparar a pesquisa.");
+    fillSelect(areaSelect, data.areas, "Identificar a partir do texto");
+    fillSelect(locationSelect, data.locations, "Sem preferência");
+    renderChoices(areaList, data.areas, (value, button) => {
+      areaSelect.value = areaSelect.value === value ? "" : value;
+      for (const chip of areaList.children) chip.classList.toggle("is-on", chip === button && areaSelect.value === value);
+      filters.hidden = false;
+      filterButton.setAttribute("aria-expanded", "true");
+    });
+    renderChoices(cityList, data.locations, (value, button) => {
+      locationSelect.value = locationSelect.value === value ? "" : value;
+      locationSelect.dispatchEvent(new Event("change"));
+      for (const chip of cityList.children) chip.classList.toggle("is-on", chip === button && locationSelect.value === value);
+      filters.hidden = false;
+      filterButton.setAttribute("aria-expanded", "true");
+    });
   } catch (error) {
     formError.textContent = error.message;
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = "Ver advogados adequados";
   }
+}
+
+for (const prompt of prompts) {
+  const button = el("button", "suggestion", prompt.length > 72 ? `${prompt.slice(0, 72)}…` : prompt);
+  button.type = "button";
+  button.addEventListener("click", () => ask(prompt));
+  suggestions.append(button);
+}
+
+description.addEventListener("input", updateCount);
+locationSelect.addEventListener("change", () => {
+  strictLocation.disabled = locationSelect.value === "";
+  if (!locationSelect.value) strictLocation.checked = false;
+});
+filterButton.addEventListener("click", () => {
+  filters.hidden = !filters.hidden;
+  filterButton.setAttribute("aria-expanded", String(!filters.hidden));
+});
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = description.value.trim();
+  if (text.length < 20) {
+    formError.textContent = "Descreva o caso com pelo menos 20 caracteres.";
+    description.focus();
+    return;
+  }
+  ask(text);
+});
+menuButton.addEventListener("click", () => {
+  const open = sidebar.classList.toggle("is-open");
+  menuButton.setAttribute("aria-expanded", String(open));
+});
+for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
+  item.addEventListener("click", () => {
+    const panel = item.dataset.panel;
+    setActive(panel);
+    if (panel === "assistente") description.focus();
+    if (panel === "advogados") document.querySelector(".cards")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+themeButton.addEventListener("click", () => {
+  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+newChatButton.addEventListener("click", () => {
+  messages.replaceChildren();
+  historyList.replaceChildren();
+  historyEmpty.hidden = false;
+  welcome.hidden = false;
+  formError.textContent = "";
+  description.value = "";
+  updateCount();
+  setActive("assistente");
 });
 
+applyTheme(localStorage.getItem("jurifind-theme") === "dark" ? "dark" : "light");
+updateCount();
 loadMeta();
