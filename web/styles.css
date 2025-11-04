@@ -83,7 +83,9 @@ img { max-width: 100%; display: block; }
   display: flex;
   flex-direction: column;
   padding: 18px 14px 16px;
-  gap: 18px;
+  gap: 12px;
+  max-height: 100vh;
+  overflow: auto;
 }
 .brand {
   display: flex;
@@ -145,19 +147,36 @@ nav { display: grid; gap: 4px; }
   flex-direction: column;
 }
 .topbar {
-  height: 64px;
+  min-height: 64px;
+  height: auto;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 22px;
+  padding: 10px 22px;
   border-bottom: 1px solid var(--line);
   background: color-mix(in srgb, var(--panel) 88%, transparent);
   position: sticky;
   top: 0;
   z-index: 2;
 }
-.top-title { margin: 0; font-weight: 650; }
-.top-note { margin: 0 0 0 auto; color: var(--muted); font-size: 0.85rem; }
+.top-title { margin: 0; font-weight: 650; white-space: nowrap; }
+.global-search { display: flex; flex: 1; gap: 8px; min-width: 0; }
+.global-search input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+.global-search button {
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 8px 14px;
+  font-weight: 650;
+}
 .icon-button {
   display: none;
   border: 1px solid var(--line);
@@ -302,6 +321,49 @@ nav { display: grid; gap: 4px; }
 .directory-status { margin: 0 0 12px; color: var(--muted); }
 .directory .cards { margin-top: 0; }
 
+.vista {
+  flex: 1;
+  overflow: auto;
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 22px 0 32px;
+}
+.vista h2 { margin: 0 0 8px; }
+.vista-intro { color: var(--muted); }
+.entry-list, .compare { display: grid; gap: 12px; }
+.compare { grid-template-columns: 1fr 1fr; }
+.entry {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 16px;
+}
+.entry h3 { margin: 0 0 6px; }
+.entry p { margin: 0 0 8px; }
+.eyebrow, .diploma { color: var(--muted); font-size: 0.82rem; }
+.compare-controls, .folder-form, .choices { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+.compare-controls select, .folder-form input, .vista > input {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.choice.is-right { border-color: #1f6b4a; background: #e7f6ee; }
+.choice.is-wrong { border-color: #b42318; background: #fdecea; }
+html[data-theme="dark"] .choice.is-right { background: #163528; }
+html[data-theme="dark"] .choice.is-wrong { background: #3a1d1d; }
+.mode-field { grid-column: 1 / -1; }
+
 .composer {
   width: min(860px, calc(100% - 32px));
   margin: 0 auto 18px;
@@ -371,6 +433,8 @@ nav { display: grid; gap: 4px; }
   }
   .sidebar.is-open { transform: none; }
   .icon-button { display: inline-flex; }
-  .cards, .personalize { grid-template-columns: 1fr; }
+  .cards, .personalize, .compare { grid-template-columns: 1fr; }
+  .topbar { height: auto; flex-wrap: wrap; padding: 10px 16px; }
+  .global-search { width: 100%; }
   .lawyer { grid-template-columns: 72px minmax(0, 1fr); }
 }

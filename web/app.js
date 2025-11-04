@@ -174,12 +174,34 @@ function foldQuery(value) {
   return String(value).normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 }
 
+const TITLES = {
+  assistente: "Assistente jurídico",
+  advogados: "Advogados",
+  areas: "Assistente jurídico",
+  cidades: "Assistente jurídico",
+  vade: "Vade Mecum",
+  jurisprudencia: "Jurisprudência",
+  dicionario: "Dicionário jurídico",
+  atualizacoes: "Atualizações",
+  noticias: "Notícias",
+  questoes: "Questões",
+  comparar: "Comparar",
+  pastas: "Pastas",
+  etiquetas: "Etiquetas",
+  recentes: "Conteúdos recentes",
+  busca: "Pesquisa",
+};
+
 function showView(panel) {
-  const assistant = panel !== "advogados";
+  const assistant = panel === "assistente" || panel === "areas" || panel === "cidades";
+  const lawyers = panel === "advogados";
   document.querySelector("#conversa").hidden = !assistant;
   form.hidden = !assistant;
-  directory.hidden = assistant;
-  document.querySelector(".top-title").textContent = assistant ? "Assistente jurídico" : "Advogados";
+  directory.hidden = !lawyers;
+  const vista = document.querySelector("#vista");
+  vista.hidden = assistant || lawyers;
+  document.querySelector(".top-title").textContent = TITLES[panel] || "JuriFind IA";
+  if (!assistant && !lawyers) window.JuriFindStudio.open(panel, document.querySelector("#busca-texto")?.value.trim());
 }
 
 function paintDirectory(query = "") {
@@ -226,16 +248,40 @@ async function ask(text) {
   busy = true;
   formError.textContent = "";
   welcome.hidden = true;
+  showView("assistente");
+  setActive("assistente");
+  const mode = document.querySelector("#modo")?.value || "explicar";
   const user = el("article", "bubble user");
   user.append(el("p", null, text));
   messages.append(user);
   remember(text, user);
-  const pending = el("article", "bubble assistant");
-  pending.append(el("p", null, "A analisar o caso…"));
-  messages.append(pending);
-  pending.scrollIntoView({ behavior: "smooth", block: "end" });
   submitButton.disabled = true;
   try {
+    if (mode === "comparar") {
+      messages.append(window.JuriFindStudio.compareFromText(text));
+      description.value = "";
+      updateCount();
+      return;
+    }
+    if (mode === "provas") {
+      showView("questoes");
+      setActive("questoes");
+      return;
+    }
+    const legal = mode !== "advogados" ? window.JuriFindStudio.hitsBubble(text) : null;
+    if (legal) messages.append(legal);
+    if (text.length < 20) {
+      if (!legal) formError.textContent = "Descreva o caso com pelo menos 20 caracteres, ou pergunte por um diploma como DUAT ou Lei do Trabalho.";
+      else {
+        description.value = "";
+        updateCount();
+      }
+      return;
+    }
+    const pending = el("article", "bubble assistant");
+    pending.append(el("p", null, "A procurar advogados…"));
+    messages.append(pending);
+    pending.scrollIntoView({ behavior: "smooth", block: "end" });
     const response = await fetch(api("/api/recommend"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -257,7 +303,7 @@ async function ask(text) {
     description.value = "";
     updateCount();
   } catch (error) {
-    pending.replaceWith(el("article", "bubble assistant", error.message));
+    messages.append(el("article", "bubble assistant", error.message));
   } finally {
     busy = false;
     submitButton.disabled = false;
@@ -324,7 +370,18 @@ filterButton.addEventListener("click", () => {
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const text = description.value.trim();
-  if (text.length < 20) {
+  const mode = document.querySelector("#modo")?.value || "explicar";
+  if (mode === "provas") {
+    setActive("questoes");
+    showView("questoes");
+    return;
+  }
+  if (text.length < 2) {
+    formError.textContent = "Escreva a pergunta ou o caso.";
+    description.focus();
+    return;
+  }
+  if (mode === "advogados" && text.length < 20) {
     formError.textContent = "Descreva o caso com pelo menos 20 caracteres.";
     description.focus();
     return;
@@ -340,10 +397,17 @@ for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
     const panel = item.dataset.panel;
     setActive(panel);
     if (panel === "advogados") showLawyers();
-    else showView("assistente");
+    else showView(panel);
     if (panel === "assistente") description.focus();
   });
 }
+document.querySelector("#busca").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const query = document.querySelector("#busca-texto").value.trim();
+  if (query.length < 2) return;
+  setActive("busca");
+  showView("busca");
+});
 themeButton.addEventListener("click", () => {
   applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
 });
