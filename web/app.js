@@ -201,6 +201,7 @@ function showView(panel) {
   const vista = document.querySelector("#vista");
   vista.hidden = assistant || lawyers;
   document.querySelector(".top-title").textContent = TITLES[panel] || "JuriFind IA";
+  document.querySelector("#voltar").hidden = assistant;
   if (!assistant && !lawyers) window.JuriFindStudio.open(panel, document.querySelector("#busca-texto")?.value.trim());
 }
 
@@ -401,6 +402,16 @@ for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
     if (panel === "assistente") description.focus();
   });
 }
+document.querySelector("#voltar").addEventListener("click", () => {
+  setActive("assistente");
+  showView("assistente");
+  description.focus();
+});
+document.querySelector(".brand").addEventListener("click", (event) => {
+  event.preventDefault();
+  setActive("assistente");
+  showView("assistente");
+});
 document.querySelector("#busca").addEventListener("submit", (event) => {
   event.preventDefault();
   const query = document.querySelector("#busca-texto").value.trim();
