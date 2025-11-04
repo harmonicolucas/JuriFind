@@ -441,8 +441,7 @@ document.querySelector("#voltar").addEventListener("click", () => {
 });
 document.querySelector(".brand").addEventListener("click", (event) => {
   event.preventDefault();
-  setActive("assistente");
-  showView("assistente");
+  showLanding();
 });
 document.querySelector("#busca").addEventListener("submit", (event) => {
   event.preventDefault();
@@ -472,3 +471,85 @@ directorySearch.addEventListener("input", () => {
 applyTheme(localStorage.getItem("jurifind-theme") === "dark" ? "dark" : "light");
 updateCount();
 loadMeta();
+
+function openApp(panel) {
+  document.querySelector("#capa").hidden = true;
+  document.querySelector("#aplicacao").hidden = false;
+  document.body.classList.add("is-app");
+  document.querySelector("#site-nav")?.classList.remove("is-open");
+  setActive(panel);
+  if (panel === "advogados") showLawyers();
+  else showView(panel);
+}
+
+function showLanding() {
+  document.querySelector("#capa").hidden = false;
+  document.querySelector("#aplicacao").hidden = true;
+  document.body.classList.remove("is-app");
+  closeMenu();
+  window.scrollTo(0, 0);
+}
+
+for (const button of document.querySelectorAll("[data-open]")) {
+  button.addEventListener("click", () => openApp(button.dataset.open));
+}
+document.querySelector("#inicio")?.addEventListener("click", showLanding);
+
+for (const mode of document.querySelectorAll(".mode")) {
+  mode.addEventListener("click", () => {
+    for (const other of document.querySelectorAll(".mode")) other.classList.remove("is-on");
+    mode.classList.add("is-on");
+    const label = document.querySelector("#capa-etiqueta");
+    if (label) label.textContent = mode.dataset.label || "";
+  });
+}
+
+document.querySelector("#capa-caso")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const selected = document.querySelector(".mode.is-on");
+  const mode = selected?.dataset.mode || "explicar";
+  const text = document.querySelector("#capa-texto").value.trim();
+  if (mode === "vade" || mode === "jurisprudencia" || mode === "dicionario") {
+    const search = document.querySelector("#busca-texto");
+    if (search) search.value = text;
+    openApp(mode);
+    return;
+  }
+  const modeSelect = document.querySelector("#modo");
+  if (modeSelect) modeSelect.value = mode;
+  openApp("assistente");
+  description.value = text;
+  updateCount();
+  if (text.length >= 2) form.requestSubmit();
+  else description.focus();
+});
+
+const slides = [...document.querySelectorAll(".slide")];
+let slideIndex = 0;
+function renderSlide() {
+  slides.forEach((slide, index) => { slide.hidden = index !== slideIndex; });
+  const count = document.querySelector("#slide-count");
+  if (count) count.textContent = `${String(slideIndex + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+  const prev = document.querySelector("#slide-prev");
+  const next = document.querySelector("#slide-next");
+  if (prev) prev.disabled = slideIndex === 0;
+  if (next) next.disabled = slideIndex >= slides.length - 1;
+}
+document.querySelector("#slide-prev")?.addEventListener("click", () => {
+  slideIndex = Math.max(0, slideIndex - 1);
+  renderSlide();
+});
+document.querySelector("#slide-next")?.addEventListener("click", () => {
+  slideIndex = Math.min(slides.length - 1, slideIndex + 1);
+  renderSlide();
+});
+renderSlide();
+
+const siteNav = document.querySelector("#site-nav");
+window.addEventListener("scroll", () => {
+  siteNav?.classList.toggle("is-solid", window.scrollY > 24);
+}, { passive: true });
+document.querySelector("#nav-burger")?.addEventListener("click", () => {
+  const open = siteNav.classList.toggle("is-open");
+  document.querySelector("#nav-burger").setAttribute("aria-expanded", String(open));
+});
