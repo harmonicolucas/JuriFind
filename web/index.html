@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/geist-sans@5.2.5/index.css">
   <link rel="stylesheet" href="styles.css?v=15">
-  <link rel="stylesheet" href="home.css?v=1">
+  <link rel="stylesheet" href="home.css?v=2">
 </head>
 <body>
   <a class="skip" href="#capa-texto">Saltar para a pergunta</a>
@@ -32,10 +32,24 @@
       <img class="hero-mark" src="favicon.svg" alt="">
       <div class="hero-copy">
         <h1>Encontre o advogado a partir do caso.</h1>
-        <p>Descreva o que aconteceu. O JuriFind IA indica a área do direito moçambicano e mostra quem publica essa prática, com fotografia e telefone.</p>
-        <button type="button" class="pill light" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
+        <div class="hero-row">
+          <p>Descreva o que aconteceu. O JuriFind IA indica a área do direito moçambicano e mostra quem publica essa prática, com fotografia e telefone.</p>
+          <button type="button" class="pill light" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
+        </div>
+        <button type="button" class="film" id="ver-demo">
+          <img src="favicon.svg" alt="">
+          <span><small>Ver</small>O assistente em movimento</span>
+        </button>
       </div>
     </section>
+
+    <p class="marquee-label">Cidades do directório</p>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Maputo</span><span>Matola</span><span>Beira</span><span>Nampula</span><span>Quelimane</span><span>Tete</span><span>Pemba</span><span>Inhambane</span><span>Chimoio</span><span>Xai-Xai</span>
+        <span>Maputo</span><span>Matola</span><span>Beira</span><span>Nampula</span><span>Quelimane</span><span>Tete</span><span>Pemba</span><span>Inhambane</span><span>Chimoio</span><span>Xai-Xai</span>
+      </div>
+    </div>
 
     <section class="block" id="funcionalidades">
       <h2>O assistente jurídico para direito moçambicano</h2>
@@ -67,14 +81,17 @@
             <span>A organização judiciária, sem acórdãos inventados.</span>
           </button>
         </div>
-        <form id="capa-caso" class="chat-card">
+        <div class="chat-card" id="demo">
           <div class="chat-top"><span id="capa-etiqueta">Explicar</span><span>JuriFind IA</span></div>
+          <div class="demo-stage" id="demo-stage" aria-live="polite"></div>
+          <form id="capa-caso">
           <label class="sr" for="capa-texto">Descreva o caso</label>
           <div class="chat-ask">
             <input id="capa-texto" name="caso" placeholder="Descreva o caso: o que aconteceu e em que cidade." autocomplete="off">
             <button type="submit" aria-label="Enviar"><span aria-hidden="true">↑</span></button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -89,35 +106,69 @@
       </div>
       <div class="slides">
         <article class="slide">
+          <div class="mock">
+            <p class="demo-ask is-in">Fui despedido na Matola sem carta.</p>
+            <p>Laboral · Lei n.º 13/2023</p>
+          </div>
           <p class="num">01</p>
           <h3>Assistente</h3>
           <p>O relato indica a área do direito moçambicano e, quando o texto chega, os advogados com essa prática publicada.</p>
         </article>
         <article class="slide" hidden>
+          <div class="mock faces">
+            <span></span><span></span><span></span>
+            <p>Nome, fotografia, cidade e telefone.</p>
+          </div>
           <p class="num">02</p>
           <h3>Advogados</h3>
           <p>Lista com nome, fotografia quando existe, áreas, cidade e botão para ligar para o telefone publicado.</p>
         </article>
         <article class="slide" hidden>
+          <div class="mock">
+            <p class="demo-ask is-in">DUAT</p>
+            <p>Lei n.º 19/97 · terras</p>
+          </div>
           <p class="num">03</p>
           <h3>Vade Mecum</h3>
           <p>Constituição, Lei da Família, Lei do Trabalho, Código Penal e outros diplomas já conferidos. O articulado não é reproduzido.</p>
         </article>
         <article class="slide" hidden>
+          <div class="mock">
+            <p>Supremo Tribunal de Justiça</p>
+            <p>Tribunal Administrativo</p>
+            <p>Tribunais judiciais</p>
+          </div>
           <p class="num">04</p>
           <h3>Tribunais</h3>
           <p>Mapa da organização judiciária moçambicana. Não há decisões inventadas.</p>
         </article>
         <article class="slide" hidden>
+          <div class="mock">
+            <p><strong>DUAT</strong></p>
+            <p>Direito de uso e aproveitamento da terra.</p>
+          </div>
           <p class="num">05</p>
           <h3>Dicionário</h3>
           <p>Termos usados no direito de Moçambique, com o sentido usado neste sistema.</p>
         </article>
         <article class="slide" hidden>
+          <div class="mock">
+            <p>1. Qual o diploma do trabalho em vigor?</p>
+            <p>Lei n.º 13/2023</p>
+          </div>
           <p class="num">06</p>
           <h3>Questões</h3>
           <p>Perguntas de escolha múltipla para rever a matéria que já está no Vade Mecum.</p>
         </article>
+      </div>
+    </section>
+
+    <section class="stats">
+      <p>Assistente, advogados, legislação reunida e estudo no mesmo sítio, para o direito moçambicano.</p>
+      <div>
+        <div><strong>Caso</strong><span>O relato indica a área.</span></div>
+        <div><strong>Perfil</strong><span>Nome, fotografia e cidade publicados.</span></div>
+        <div><strong>Telefone</strong><span>Só o número que consta do perfil.</span></div>
       </div>
     </section>
 
@@ -148,14 +199,14 @@
       </div>
     </section>
 
-    <section class="block plain" id="percurso">
+    <section class="block dark" id="percurso">
       <h2>Do relato ao contacto.</h2>
       <p class="sub">Quatro passos, sempre com o que está publicado.</p>
-      <ol class="layers">
-        <li><h3>Relate o caso</h3><p>O que aconteceu, em que cidade e o que pretende.</p></li>
-        <li><h3>Confira a área</h3><p>O sistema indica a área do direito moçambicano e o diploma que enquadra o relato.</p></li>
-        <li><h3>Veja o perfil</h3><p>Nome, fotografia quando existe, áreas e cidade publicadas.</p></li>
-        <li><h3>Ligue</h3><p>O botão de telefone usa só o número que consta do perfil.</p></li>
+      <ol class="layers cols">
+        <li><h3>Relate o caso</h3><p>O que aconteceu, em que cidade e o que pretende.</p><span>01</span></li>
+        <li><h3>Confira a área</h3><p>O sistema indica a área do direito moçambicano e o diploma que enquadra o relato.</p><span>02</span></li>
+        <li><h3>Veja o perfil</h3><p>Nome, fotografia quando existe, áreas e cidade publicadas.</p><span>03</span></li>
+        <li><h3>Ligue</h3><p>O botão de telefone usa só o número que consta do perfil.</p><span>04</span></li>
       </ol>
     </section>
 
@@ -221,6 +272,7 @@
         <button type="button" data-open="recentes">Recentes</button>
         <button type="button" data-open="noticias">Notícias</button>
       </div>
+      <p class="giant">JuriFind IA</p>
       <p class="copy">© 2026 JuriFind IA · Maputo, Moçambique</p>
     </footer>
   </div>
@@ -364,6 +416,6 @@
   <script src="corpus.js?v=11"></script>
   <script src="studio.js?v=11"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

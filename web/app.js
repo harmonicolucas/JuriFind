@@ -495,14 +495,130 @@ for (const button of document.querySelectorAll("[data-open]")) {
 }
 document.querySelector("#inicio")?.addEventListener("click", showLanding);
 
+const scenes = [
+  {
+    mode: "explicar",
+    label: "Explicar",
+    question: "Fui despedido na Matola sem carta e estou sem salários.",
+    think: "A identificar a área",
+    title: "Laboral",
+    body: "O relato trata de despedimento e de salários em atraso. O diploma de referência neste sistema é a Lei n.º 13/2023, Lei do Trabalho.",
+    sources: [["Diploma", "Lei n.º 13/2023"], ["Área", "Laboral"], ["Cidade", "Matola"]],
+  },
+  {
+    mode: "advogados",
+    label: "Advogados",
+    question: "Quem publica prática laboral na Matola?",
+    think: "A procurar perfis publicados",
+    title: "Perfis publicados",
+    body: "A lista mostra o nome, a fotografia quando existe, as áreas, a cidade e o telefone do perfil.",
+    sources: [["Perfil", "Nome e fotografia"], ["Prática", "Laboral"], ["Contacto", "Telefone publicado"]],
+  },
+  {
+    mode: "comparar",
+    label: "Comparar",
+    question: "O que mudou na lei do trabalho?",
+    think: "A comparar os diplomas reunidos",
+    title: "Lei do Trabalho",
+    body: "A Lei n.º 13/2023 revogou a Lei n.º 23/2007. A comparação usa só esses diplomas já identificados.",
+    sources: [["Em vigor", "Lei n.º 13/2023"], ["Revogada", "Lei n.º 23/2007"]],
+  },
+  {
+    mode: "vade",
+    label: "Vade Mecum",
+    question: "Onde está o DUAT?",
+    think: "A procurar no Vade Mecum",
+    title: "Terras",
+    body: "O DUAT está na Lei n.º 19/97. O articulado não é reproduzido.",
+    sources: [["Diploma", "Lei n.º 19/97"], ["Tema", "DUAT"]],
+  },
+  {
+    mode: "jurisprudencia",
+    label: "Tribunais",
+    question: "Que tribunais existem?",
+    think: "A abrir a organização judiciária",
+    title: "Tribunais",
+    body: "O mapa descreve a organização dos tribunais. Não há decisões inventadas.",
+    sources: [["Mapa", "Organização judiciária"], ["Decisões", "Não são criadas"]],
+  },
+  {
+    mode: "provas",
+    label: "Questões",
+    question: "Quero rever a Lei do Trabalho.",
+    think: "A abrir as questões",
+    title: "Estudo",
+    body: "As perguntas de escolha múltipla usam a matéria já reunida no Vade Mecum.",
+    sources: [["Formato", "Escolha múltipla"], ["Base", "Diplomas já identificados"]],
+  },
+];
+const demoStage = document.querySelector("#demo-stage");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let sceneIndex = 0;
+let sceneTimer = 0;
+
+function paintScene(index, animate) {
+  const scene = scenes[index];
+  if (!scene || !demoStage) return;
+  for (const mode of document.querySelectorAll(".mode")) {
+    mode.classList.toggle("is-on", mode.dataset.mode === scene.mode);
+  }
+  const label = document.querySelector("#capa-etiqueta");
+  if (label) label.textContent = scene.label;
+  demoStage.replaceChildren();
+  const ask = el("p", "demo-ask", scene.question);
+  const think = el("p", "demo-think", scene.think);
+  const answer = el("div", "demo-answer");
+  answer.append(el("strong", null, scene.title), el("p", null, scene.body));
+  const sources = el("div", "demo-sources");
+  for (const [name, value] of scene.sources) {
+    const card = el("article", "source-card");
+    card.append(el("small", null, name), el("strong", null, value));
+    sources.append(card);
+  }
+  demoStage.append(ask, think, answer, sources);
+  const show = () => {
+    ask.classList.add("is-in");
+    think.classList.add("is-in");
+    answer.classList.add("is-in");
+    for (const card of sources.children) card.classList.add("is-in");
+  };
+  if (!animate || reduceMotion) {
+    show();
+    return;
+  }
+  setTimeout(() => ask.classList.add("is-in"), 80);
+  setTimeout(() => think.classList.add("is-in"), 700);
+  setTimeout(() => answer.classList.add("is-in"), 1400);
+  [...sources.children].forEach((card, item) => setTimeout(() => card.classList.add("is-in"), 1900 + item * 220));
+}
+
+function armScene() {
+  clearTimeout(sceneTimer);
+  if (reduceMotion) return;
+  sceneTimer = setTimeout(() => {
+    sceneIndex = (sceneIndex + 1) % scenes.length;
+    paintScene(sceneIndex, true);
+    armScene();
+  }, 7200);
+}
+
 for (const mode of document.querySelectorAll(".mode")) {
   mode.addEventListener("click", () => {
-    for (const other of document.querySelectorAll(".mode")) other.classList.remove("is-on");
-    mode.classList.add("is-on");
-    const label = document.querySelector("#capa-etiqueta");
-    if (label) label.textContent = mode.dataset.label || "";
+    const next = scenes.findIndex((scene) => scene.mode === mode.dataset.mode);
+    sceneIndex = next < 0 ? 0 : next;
+    paintScene(sceneIndex, true);
+    armScene();
   });
 }
+document.querySelector("#ver-demo")?.addEventListener("click", () => {
+  document.querySelector("#funcionalidades")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+  paintScene(sceneIndex, true);
+  armScene();
+});
+document.querySelector(".stage")?.addEventListener("mouseenter", () => clearTimeout(sceneTimer));
+document.querySelector(".stage")?.addEventListener("mouseleave", armScene);
+paintScene(0, !reduceMotion);
+armScene();
 
 document.querySelector("#capa-caso")?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -530,20 +646,18 @@ function renderSlide() {
   slides.forEach((slide, index) => { slide.hidden = index !== slideIndex; });
   const count = document.querySelector("#slide-count");
   if (count) count.textContent = `${String(slideIndex + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
-  const prev = document.querySelector("#slide-prev");
-  const next = document.querySelector("#slide-next");
-  if (prev) prev.disabled = slideIndex === 0;
-  if (next) next.disabled = slideIndex >= slides.length - 1;
 }
-document.querySelector("#slide-prev")?.addEventListener("click", () => {
-  slideIndex = Math.max(0, slideIndex - 1);
+function stepSlide(delta) {
+  if (!slides.length) return;
+  slideIndex = (slideIndex + delta + slides.length) % slides.length;
   renderSlide();
-});
-document.querySelector("#slide-next")?.addEventListener("click", () => {
-  slideIndex = Math.min(slides.length - 1, slideIndex + 1);
-  renderSlide();
-});
+}
+document.querySelector("#slide-prev")?.addEventListener("click", () => stepSlide(-1));
+document.querySelector("#slide-next")?.addEventListener("click", () => stepSlide(1));
 renderSlide();
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  setInterval(() => stepSlide(1), 5200);
+}
 
 const siteNav = document.querySelector("#site-nav");
 window.addEventListener("scroll", () => {
