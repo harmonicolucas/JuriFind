@@ -114,7 +114,12 @@ function renderResults(data) {
 async function loadMeta() {
   try {
     const response = await fetch(api("/api/meta"));
-    const data = await response.json();
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("A lista de advogados não está acessível neste momento.");
+    }
     if (!response.ok) throw new Error(data.error || "Não foi possível preparar a pesquisa.");
     fillSelect(areaSelect, data.areas, "Identificar a partir do texto");
     fillSelect(locationSelect, data.locations, "Sem preferência");
