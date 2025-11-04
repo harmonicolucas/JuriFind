@@ -6,7 +6,7 @@
   <title>JuriFind IA — Software moçambicano</title>
   <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
   <a class="skip" href="#mensagem">Saltar para a mensagem</a>
@@ -23,6 +23,18 @@
         <p class="nav-label">Consultar</p>
         <button type="button" class="nav-item is-active" data-panel="assistente">Assistente</button>
         <button type="button" class="nav-item" data-panel="advogados">Advogados</button>
+        <button type="button" class="nav-item" data-panel="vade">Vade Mecum</button>
+        <button type="button" class="nav-item" data-panel="jurisprudencia">Jurisprudência</button>
+        <button type="button" class="nav-item" data-panel="dicionario">Dicionário jurídico</button>
+        <button type="button" class="nav-item" data-panel="atualizacoes">Atualizações</button>
+        <button type="button" class="nav-item" data-panel="noticias">Notícias</button>
+        <p class="nav-label">Estudar</p>
+        <button type="button" class="nav-item" data-panel="questoes">Questões</button>
+        <button type="button" class="nav-item" data-panel="comparar">Comparar</button>
+        <p class="nav-label">Meu material</p>
+        <button type="button" class="nav-item" data-panel="pastas">Pastas</button>
+        <button type="button" class="nav-item" data-panel="etiquetas">Etiquetas</button>
+        <button type="button" class="nav-item" data-panel="recentes">Conteúdos recentes</button>
         <p class="nav-label">Refinar</p>
         <button type="button" class="nav-item" data-panel="areas">Áreas</button>
         <button type="button" class="nav-item" data-panel="cidades">Cidades</button>
@@ -45,7 +57,11 @@
       <header class="topbar">
         <button type="button" id="menu" class="icon-button" aria-expanded="false" aria-controls="sidebar">Menu</button>
         <p class="top-title">Assistente jurídico</p>
-        <p class="top-note">Moçambique</p>
+        <form id="busca" class="global-search" role="search">
+          <label class="sr" for="busca-texto">Pesquisar</label>
+          <input id="busca-texto" type="search" placeholder="Ex.: Lei do Trabalho, DUAT, despedimento">
+          <button type="submit">Buscar</button>
+        </form>
       </header>
 
       <div id="conversa" class="thread">
@@ -56,6 +72,8 @@
         </div>
         <div id="mensagens" class="messages" aria-live="polite"></div>
       </div>
+
+      <section id="vista" class="vista" hidden></section>
 
       <section id="directorio" class="directory" hidden>
         <div class="directory-head">
@@ -69,6 +87,15 @@
 
       <form id="caso" class="composer">
         <div id="personalizar" class="personalize" hidden>
+          <div class="mode-field">
+            <label for="modo">Tipo de conversa</label>
+            <select id="modo" name="modo">
+              <option value="explicar">Explicar o direito moçambicano</option>
+              <option value="comparar">Comparar dois diplomas</option>
+              <option value="advogados">Encontrar advogados</option>
+              <option value="provas">Estudar para questões</option>
+            </select>
+          </div>
           <div>
             <label for="area">Área</label>
             <select id="area" name="area">
@@ -103,7 +130,9 @@
       <ol id="historico"></ol>
     </aside>
   </div>
+  <script src="corpus.js?v=8"></script>
+  <script src="studio.js?v=8"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
