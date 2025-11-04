@@ -23,14 +23,27 @@ const areaList = document.querySelector("#lista-areas");
 const cityList = document.querySelector("#lista-cidades");
 const sidebar = document.querySelector("#sidebar");
 const menuButton = document.querySelector("#menu");
+const scrim = document.querySelector("#cortina");
 const themeButton = document.querySelector("#tema");
 const newChatButton = document.querySelector("#nova");
 const limit = 2000;
 
 const prompts = [
-  "Trabalhei dois anos numa loja na Matola e fui despedido sem carta. Não recebi os salários dos últimos três meses.",
-  "Quero o divórcio na Beira. Temos dois filhos menores e não há acordo sobre a pensão de alimentos.",
-  "O meu vizinho em Maputo ocupa parte do terreno onde tenho o DUAT e recusa sair.",
+  {
+    title: "Despedimento na Matola",
+    hint: "Trabalho sem carta e salários em atraso.",
+    text: "Trabalhei dois anos numa loja na Matola e fui despedido sem carta. Não recebi os salários dos últimos três meses.",
+  },
+  {
+    title: "Divórcio na Beira",
+    hint: "Filhos menores e pensão de alimentos.",
+    text: "Quero o divórcio na Beira. Temos dois filhos menores e não há acordo sobre a pensão de alimentos.",
+  },
+  {
+    title: "DUAT em Maputo",
+    hint: "Ocupação de parte do terreno.",
+    text: "O meu vizinho em Maputo ocupa parte do terreno onde tenho o DUAT e recusa sair.",
+  },
 ];
 
 function api(path) {
@@ -72,22 +85,26 @@ function portrait(lawyer) {
     const image = document.createElement("img");
     image.src = api(photo);
     image.alt = `Fotografia de ${lawyer.name}`;
+    image.loading = "lazy";
     image.addEventListener("error", () => image.replaceWith(fallback));
     frame.append(image);
   } else {
     frame.append(fallback);
   }
-  const bandClass = lawyer.band === "Correspondência forte"
-    ? "band"
-    : lawyer.band === "Correspondência moderada" ? "band mid" : "band soft";
-  frame.append(el("p", bandClass, lawyer.band || "Correspondência"));
   return frame;
 }
+
+const BANDS = {
+  "Correspondência forte": ["band", "Na cidade do caso"],
+  "Correspondência moderada": ["band mid", "Mesma área"],
+};
 
 function lawyerCard(lawyer) {
   const card = el("article", "lawyer");
   card.append(portrait(lawyer));
   const body = el("div", "card-body");
+  const band = BANDS[lawyer.band];
+  if (band) body.append(el("p", band[0], band[1]));
   body.append(el("h3", null, lawyer.name));
   const places = (lawyer.locations || []).join(", ") || "Localização não indicada";
   const languages = lawyer.languages?.length ? ` · ${lawyer.languages.join(", ")}` : "";
@@ -147,14 +164,19 @@ function assistantReply(data) {
   return bubble;
 }
 
+function closeMenu() {
+  sidebar.classList.remove("is-open");
+  menuButton.setAttribute("aria-expanded", "false");
+  scrim.hidden = true;
+}
+
 function setActive(panel) {
   for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
     item.classList.toggle("is-active", item.dataset.panel === panel);
   }
   document.querySelector("#painel-areas").hidden = panel !== "areas";
   document.querySelector("#painel-cidades").hidden = panel !== "cidades";
-  sidebar.classList.remove("is-open");
-  menuButton.setAttribute("aria-expanded", "false");
+  closeMenu();
 }
 
 function updateCount() {
@@ -180,7 +202,7 @@ const TITLES = {
   areas: "Assistente jurídico",
   cidades: "Assistente jurídico",
   vade: "Vade Mecum",
-  jurisprudencia: "Jurisprudência",
+  jurisprudencia: "Tribunais",
   dicionario: "Dicionário jurídico",
   atualizacoes: "Atualizações",
   noticias: "Notícias",
@@ -214,7 +236,7 @@ function paintDirectory(query = "") {
   });
   directoryList.replaceChildren(...visible.map((lawyer) => lawyerCard(lawyer)));
   directoryStatus.textContent = visible.length
-    ? `${visible.length} ${visible.length === 1 ? "advogado" : "advogados"}`
+    ? `${visible.length} ${visible.length === 1 ? "advogado com perfil publicado" : "advogados com perfil publicado"}`
     : "Nenhum advogado corresponde a essa pesquisa.";
 }
 
@@ -347,15 +369,18 @@ async function loadMeta() {
       filters.hidden = false;
       filterButton.setAttribute("aria-expanded", "true");
     });
-  } catch (error) {
-    formError.textContent = error.message;
+  } catch {
+    areaList.replaceChildren();
+    cityList.replaceChildren();
   }
 }
 
 for (const prompt of prompts) {
-  const button = el("button", "suggestion", prompt.length > 72 ? `${prompt.slice(0, 72)}…` : prompt);
+  const button = el("button", "suggestion");
   button.type = "button";
-  button.addEventListener("click", () => ask(prompt));
+  button.append(el("strong", null, prompt.title));
+  button.append(el("span", null, prompt.hint));
+  button.addEventListener("click", () => ask(prompt.text));
   suggestions.append(button);
 }
 
@@ -392,7 +417,9 @@ form.addEventListener("submit", (event) => {
 menuButton.addEventListener("click", () => {
   const open = sidebar.classList.toggle("is-open");
   menuButton.setAttribute("aria-expanded", String(open));
+  scrim.hidden = !open;
 });
+scrim.addEventListener("click", closeMenu);
 for (const item of document.querySelectorAll(".nav-item[data-panel]")) {
   item.addEventListener("click", () => {
     const panel = item.dataset.panel;

@@ -6,17 +6,18 @@
   <title>JuriFind IA — Software moçambicano</title>
   <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
   <a class="skip" href="#mensagem">Saltar para a mensagem</a>
+  <button type="button" id="cortina" class="scrim" hidden aria-label="Fechar menu"></button>
   <div class="shell">
     <aside id="sidebar" class="sidebar">
       <a class="brand" href="#conversa">
-        <span class="mark" aria-hidden="true">JF</span>
+        <img class="mark" src="favicon.svg" alt="" width="40" height="40">
         <span>
           <strong>JuriFind IA</strong>
-          <small>Software moçambicano</small>
+          <small>Direito de Moçambique</small>
         </span>
       </a>
       <nav aria-label="Secções">
@@ -24,18 +25,18 @@
         <button type="button" class="nav-item is-active" data-panel="assistente">Assistente</button>
         <button type="button" class="nav-item" data-panel="advogados">Advogados</button>
         <button type="button" class="nav-item" data-panel="vade">Vade Mecum</button>
-        <button type="button" class="nav-item" data-panel="jurisprudencia">Jurisprudência</button>
-        <button type="button" class="nav-item" data-panel="dicionario">Dicionário jurídico</button>
+        <button type="button" class="nav-item" data-panel="jurisprudencia">Tribunais</button>
+        <button type="button" class="nav-item" data-panel="dicionario">Dicionário</button>
         <button type="button" class="nav-item" data-panel="atualizacoes">Atualizações</button>
         <button type="button" class="nav-item" data-panel="noticias">Notícias</button>
         <p class="nav-label">Estudar</p>
         <button type="button" class="nav-item" data-panel="questoes">Questões</button>
         <button type="button" class="nav-item" data-panel="comparar">Comparar</button>
-        <p class="nav-label">Meu material</p>
+        <p class="nav-label">O meu material</p>
         <button type="button" class="nav-item" data-panel="pastas">Pastas</button>
         <button type="button" class="nav-item" data-panel="etiquetas">Etiquetas</button>
-        <button type="button" class="nav-item" data-panel="recentes">Conteúdos recentes</button>
-        <p class="nav-label">Refinar</p>
+        <button type="button" class="nav-item" data-panel="recentes">Recentes</button>
+        <p class="nav-label">Afinar a pesquisa</p>
         <button type="button" class="nav-item" data-panel="areas">Áreas</button>
         <button type="button" class="nav-item" data-panel="cidades">Cidades</button>
       </nav>
@@ -46,6 +47,11 @@
       <div id="painel-cidades" class="side-panel" hidden>
         <p class="side-title">Cidades</p>
         <div id="lista-cidades" class="chip-list"></div>
+      </div>
+      <div class="side-history">
+        <h2>Nesta visita</h2>
+        <p id="historico-vazio" class="history-empty">As perguntas ficam aqui até fechar a página.</p>
+        <ol id="historico"></ol>
       </div>
       <div class="side-foot">
         <button type="button" id="tema" class="nav-item">Tema escuro</button>
@@ -67,8 +73,15 @@
 
       <div id="conversa" class="thread">
         <div id="boas-vindas" class="welcome">
-          <h1>JuriFind IA</h1>
-          <p>Software moçambicano. Descreva o caso e veja advogados cuja prática publicada corresponde ao relato.</p>
+          <p class="kicker">Moçambique</p>
+          <h1>Encontre o advogado a partir do caso</h1>
+          <p class="lede">Descreva o que aconteceu. O JuriFind IA indica a área do direito moçambicano e mostra advogados com a prática, a cidade e o contacto publicados.</p>
+          <ol class="steps">
+            <li><strong>Relate</strong><span>O que aconteceu, em que cidade e o que pretende.</span></li>
+            <li><strong>Confira</strong><span>A área e o diploma que enquadram o relato.</span></li>
+            <li><strong>Contacte</strong><span>Fotografia, prática publicada e telefone.</span></li>
+          </ol>
+          <p class="suggest-label">Comece por um exemplo</p>
           <div id="sugestoes" class="suggestions"></div>
         </div>
         <div id="mensagens" class="messages" aria-live="polite"></div>
@@ -78,9 +91,12 @@
 
       <section id="directorio" class="directory" hidden>
         <div class="directory-head">
-          <h2>Advogados</h2>
+          <div>
+            <h2>Advogados</h2>
+            <p>Nome, fotografia, áreas publicadas, cidade e telefone.</p>
+          </div>
           <label class="sr" for="procurar-advogado">Procurar advogado</label>
-          <input id="procurar-advogado" type="search" placeholder="Procurar por nome, área ou cidade" autocomplete="off">
+          <input id="procurar-advogado" type="search" placeholder="Nome, área ou cidade" autocomplete="off">
         </div>
         <p id="directorio-estado" class="directory-status"></p>
         <div id="directorio-lista" class="cards"></div>
@@ -115,25 +131,19 @@
           </label>
         </div>
         <label class="sr" for="mensagem">Mensagem</label>
-        <textarea id="mensagem" name="mensagem" required minlength="20" maxlength="2000" rows="3" placeholder="Descreva o caso ou faça uma pergunta jurídica..."></textarea>
+        <textarea id="mensagem" name="mensagem" required maxlength="2000" rows="3" placeholder="Descreva o caso: o que aconteceu, em que cidade e o que pretende."></textarea>
         <div class="composer-bar">
-          <button type="button" id="abrir-filtros" class="ghost" aria-expanded="false" aria-controls="personalizar">Filtros</button>
+          <button type="button" id="abrir-filtros" class="ghost" aria-expanded="false" aria-controls="personalizar">Área e cidade</button>
           <span id="contador" class="count">0/2000</span>
           <button id="submeter" type="submit">Enviar</button>
         </div>
         <p id="form-error" class="form-error" role="alert"></p>
       </form>
     </main>
-
-    <aside class="history" aria-label="Histórico da conversa">
-      <h2>Histórico</h2>
-      <p id="historico-vazio" class="history-empty">As perguntas desta visita aparecem aqui.</p>
-      <ol id="historico"></ol>
-    </aside>
   </div>
-  <script src="corpus.js?v=8"></script>
-  <script src="studio.js?v=8"></script>
+  <script src="corpus.js?v=11"></script>
+  <script src="studio.js?v=11"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
