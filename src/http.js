@@ -1,15 +1,15 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { classifyCase, mergeAnalysis } from "./classify.js";
-import { rankLawyers } from "./recommend.js";
-import { validateRecommendInput } from "./validate.js";
-import { directoryUrlFor, taxonomyOf } from "./source.js";
-import { fold } from "./text.js";
-import { safeWebPath } from "./paths.js";
 import { telephoneHref } from "./contacts.js";
+import { createPhotoCache, fetchPhoto } from "./photos.js";
+import { rankLawyers } from "./recommend.js";
+import { taxonomyOf } from "./source.js";
+import { fold } from "./text.js";
+import { validateRecommendInput } from "./validate.js";
+import { safeWebPath } from "./paths.js";
 
-const DISCLAIMER = "As recomendações resultam da correspondência com áreas, localização e línguas publicadas no directório. Não substituem aconselhamento jurídico de um advogado inscrito na Ordem dos Advogados de Moçambique, nem garantem aceitação do caso ou qualquer resultado.";
-const SOURCE_NOTE = "Nome, áreas, localização e línguas vêm do índice público de Encontre Advogados. Biografias e fotografias permanecem no perfil original.";
+const DISCLAIMER = "As recomendações correspondem às áreas, à localização e às línguas de cada perfil. Não substituem aconselhamento jurídico de um advogado inscrito na Ordem dos Advogados de Moçambique, nem garantem aceitação do caso ou qualquer resultado.";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -93,6 +93,8 @@ export function createHandler({
   interpretCase,
   explainMatches,
   allow,
+  fetchImpl = fetch,
+  photoCache = createPhotoCache(),
 }) {
   return async function handler(req, res) {
     try {
@@ -127,7 +129,6 @@ export function createHandler({
         const usedAreas = new Set(index.lawyers.flatMap((lawyer) => lawyer.areas));
         sendJson(res, 200, {
           disclaimer: DISCLAIMER,
-          source: { name: "Encontre Advogados", url: index.source, retrievedAt: index.retrievedAt, note: SOURCE_NOTE },
           llm: Boolean(config.llmApiKey),
           locations: index.locations.map((item) => item.name).filter((name) => usedLocations.has(name)),
           areas: index.areas.map((item) => item.name).filter((name) => usedAreas.has(name)),
@@ -185,32 +186,50 @@ export function createHandler({
           preferredLocation: ranking.preferredLocation,
           relaxedLocation: ranking.relaxedLocation,
           reason: ranking.reason,
-          directoryUrl: directoryUrlFor(index, analysis.areas[0]),
           results: ranking.results.map((item, resultIndex) => {
             const explanation = explanations.get(item.lawyer.id);
             const phone = phones[resultIndex] || null;
             return {
               id: item.lawyer.id,
               name: item.lawyer.name,
-              profileUrl: item.lawyer.profileUrl,
               areas: item.lawyer.areas,
               matchedAreas: item.matchedAreas,
               locations: item.lawyer.locations,
               languages: item.lawyer.languages,
-              hasPhoto: item.lawyer.hasPhoto,
+              photo: item.lawyer.photoUrl ? `/api/photos/${item.lawyer.id}` : null,
               band: item.band,
               explanation: explanation?.text || "",
-              explanationSource: explanation?.source || "regras",
               phone: telephoneHref(phone) ? phone : null,
             };
           }),
-          source: {
-            name: "Encontre Advogados",
-            url: index.source,
-            retrievedAt: index.retrievedAt,
-            note: SOURCE_NOTE,
-          },
         });
+        return;
+      }
+
+      const photoMatch = url.pathname.match(/^\/api\/photos\/([a-z0-9-]+)$/);
+      if (photoMatch && (req.method === "GET" || req.method === "HEAD")) {
+        const slug = photoMatch[1];
+        const index = await getIndex();
+        const lawyer = index.lawyers.find((item) => item.id === slug);
+        if (!lawyer?.photoUrl) {
+          sendJson(res, 404, { error: "Fotografia indisponível." });
+          return;
+        }
+        let image = photoCache.get(slug);
+        if (!image) {
+          image = await fetchPhoto(lawyer.photoUrl, fetchImpl);
+          if (image) photoCache.set(slug, image);
+        }
+        if (!image) {
+          sendJson(res, 404, { error: "Fotografia indisponível." });
+          return;
+        }
+        res.writeHead(200, {
+          "Content-Type": image.type,
+          "Cache-Control": "public, max-age=86400",
+          "X-Content-Type-Options": "nosniff",
+        });
+        res.end(req.method === "HEAD" ? undefined : image.buffer);
         return;
       }
 
@@ -236,7 +255,7 @@ export function createHandler({
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "X-Frame-Options": "DENY",
-        "Cache-Control": extension === ".html" ? "no-cache" : "public, max-age=3600",
+        "Cache-Control": [".html", ".js", ".css"].includes(extension) ? "no-cache" : "public, max-age=86400",
       };
       if (extension === ".html") {
         headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'";
@@ -246,9 +265,9 @@ export function createHandler({
     } catch (error) {
       const sourceDown = /directório|fetch|aborted|ENOTFOUND|ECONN|getaddrinfo|network/i.test(`${error.name || ""} ${error.message || ""}`);
       const status = error.status || (sourceDown ? 503 : 500);
-      if (status >= 500) console.error(status === 503 ? "Directório indisponível." : "Pedido falhou.");
+      if (status >= 500) console.error(status === 503 ? "Lista de advogados indisponível." : "Pedido falhou.");
       const message = status === 503
-        ? "O directório de origem não está acessível neste momento."
+        ? (error.publicMessage || "A lista de advogados não está acessível neste momento.")
         : error.publicMessage || (status === 500 ? "Erro interno." : "Pedido inválido.");
       if (!res.headersSent) sendJson(res, status, { error: message });
       else res.end();

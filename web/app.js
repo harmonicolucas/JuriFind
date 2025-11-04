@@ -11,7 +11,6 @@ const results = document.querySelector("#resultados");
 const summary = document.querySelector("#resumo");
 const notice = document.querySelector("#aviso-resultado");
 const list = document.querySelector("#lista");
-const sourceLine = document.querySelector("#fonte");
 
 function api(path) {
   return `${apiBase}${path}`;
@@ -30,118 +29,85 @@ function initials(name) {
   return chosen.map((part) => part[0] || "").join("").toUpperCase() || "•";
 }
 
-function safeProfileUrl(url) {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "https:" || parsed.hostname !== "encontreadvogados.co.mz") return "";
-    if (!parsed.pathname.includes("/advogados/")) return "";
-    return parsed.href;
-  } catch {
-    return "";
-  }
-}
-
-function safeDirectoryUrl(url) {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "https:" || parsed.hostname !== "encontreadvogados.co.mz") return "";
-    return parsed.href;
-  } catch {
-    return "";
-  }
+function safePhotoPath(path) {
+  return typeof path === "string" && /^\/api\/photos\/[a-z0-9-]+$/.test(path) ? path : "";
 }
 
 function fillSelect(select, values, placeholder) {
   const current = select.value;
   select.replaceChildren();
   select.append(new Option(placeholder, ""));
-  for (const value of values || []) {
-    select.append(new Option(value, value));
-  }
+  for (const value of values || []) select.append(new Option(value, value));
   if ([...select.options].some((option) => option.value === current)) select.value = current;
 }
 
-function externalLink(href, label, className) {
-  const link = el("a", className, label);
-  link.href = href;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.append(el("span", "sr", " (abre noutro separador)"));
-  return link;
+function portrait(lawyer) {
+  const frame = el("div", "portrait");
+  const fallback = el("div", "initials", initials(lawyer.name));
+  fallback.setAttribute("role", "img");
+  fallback.setAttribute("aria-label", `Sem fotografia de ${lawyer.name}`);
+  const photo = safePhotoPath(lawyer.photo);
+  if (photo) {
+    const image = document.createElement("img");
+    image.src = api(photo);
+    image.alt = `Fotografia de ${lawyer.name}`;
+    image.addEventListener("error", () => image.replaceWith(fallback));
+    frame.append(image);
+  } else {
+    frame.append(fallback);
+  }
+  const bandClass = lawyer.band === "Correspondência forte"
+    ? "band"
+    : lawyer.band === "Correspondência moderada" ? "band mid" : "band soft";
+  frame.append(el("p", bandClass, lawyer.band || "Correspondência"));
+  return frame;
 }
 
 function renderResults(data) {
   results.hidden = false;
   list.replaceChildren();
-  const areas = data.analysis?.areas?.length ? data.analysis.areas.join(", ") : "nenhuma área do directório";
+  const areas = data.analysis?.areas?.length ? data.analysis.areas.join(", ") : "nenhuma área identificada";
   const topics = data.analysis?.keywords?.length ? ` Temas: ${data.analysis.keywords.join(", ")}.` : "";
-  const method = data.analysis?.method === "regras+modelo"
-    ? " A leitura usou regras locais e um modelo limitado às áreas do directório."
-    : " A leitura usou regras do contexto jurídico moçambicano, sem modelo externo.";
-  summary.textContent = `Áreas identificadas: ${areas}.${topics}${method}`;
+  summary.textContent = `Áreas identificadas: ${areas}.${topics}`;
 
   let lead = "";
   if (data.reason === "need_detail") {
-    lead = "O texto ainda não aponta para uma área publicada no directório. Acrescente o que aconteceu, em que cidade e o que pretende.";
+    lead = "O texto ainda não aponta para uma área. Acrescente o que aconteceu, em que cidade e o que pretende.";
   } else if (data.reason === "no_lawyer_for_area") {
-    lead = "A área foi identificada, mas nenhum advogado deste índice a publica neste momento.";
+    lead = "A área foi identificada, mas nenhum advogado deste índice a indica neste momento.";
   } else if (data.relaxedLocation) {
-    lead = "Não há correspondência só na localização pedida. A lista inclui advogados de outras cidades, ordenados pelas áreas que coincidem.";
+    lead = "Não há correspondência só na localização pedida. A lista inclui advogados de outras cidades.";
   } else {
-    lead = `${data.results.length} ${data.results.length === 1 ? "advogado ordenado" : "advogados ordenados"} pela correspondência com as áreas publicadas. Esta ordem não avalia a qualidade profissional.`;
+    const count = data.results.length;
+    lead = count === 1
+      ? "1 advogado corresponde às áreas identificadas. A ordem não avalia a qualidade profissional."
+      : `${count} advogados correspondem às áreas identificadas. A ordem não avalia a qualidade profissional.`;
   }
-  notice.replaceChildren();
-  notice.append(el("p", null, lead));
-  notice.append(el("p", null, data.disclaimer || ""));
+  notice.replaceChildren(el("p", null, lead), el("p", null, data.disclaimer || ""));
 
   for (const lawyer of data.results || []) {
     const card = el("article", "lawyer");
-    const top = el("div", "lawyer-top");
-    const who = el("div", "who");
-    who.append(el("div", "avatar", initials(lawyer.name)));
-    const heading = el("div");
-    heading.append(el("h3", null, lawyer.name));
-    const bandClass = lawyer.band === "Correspondência forte" ? "band" : lawyer.band === "Correspondência moderada" ? "band mid" : "band soft";
-    heading.append(el("p", bandClass, lawyer.band || "Correspondência"));
-    who.append(heading);
-    top.append(who);
-    card.append(top);
-
+    card.append(portrait(lawyer));
+    const body = el("div", "card-body");
+    body.append(el("h3", null, lawyer.name));
     const places = (lawyer.locations || []).join(", ") || "Localização não indicada";
-    const languages = lawyer.languages?.length ? ` · Línguas: ${lawyer.languages.join(", ")}` : "";
-    card.append(el("p", "meta", `${places}${languages}`));
-    card.append(el("p", "areas", `Coincide: ${(lawyer.matchedAreas || []).join(", ")}`));
-    if (lawyer.areas?.length) card.append(el("p", "meta", `Áreas no directório: ${lawyer.areas.join(", ")}`));
-    card.append(el("p", "explanation", lawyer.explanation || ""));
-    card.append(el("p", "method-note", lawyer.explanationSource === "modelo"
-      ? "Explicação do modelo, limitada aos dados recebidos do perfil."
-      : "Explicação automática a partir das áreas listadas."));
-    if (lawyer.hasPhoto) {
-      card.append(el("p", "photo-note", "Há fotografia no perfil original. O JuriFind não a copia."));
-    }
-
-    const actions = el("div", "actions");
-    const profile = safeProfileUrl(lawyer.profileUrl);
+    const languages = lawyer.languages?.length ? ` · ${lawyer.languages.join(", ")}` : "";
+    body.append(el("p", "place", `${places}${languages}`));
+    const chips = el("ul", "chips");
+    for (const area of lawyer.matchedAreas || []) chips.append(el("li", null, area));
+    if (chips.childElementCount) body.append(chips);
+    body.append(el("p", "explanation", lawyer.explanation || ""));
     const phone = typeof lawyer.phone === "string" && /^\+258 \d{3} \d{3} \d{3}$/.test(lawyer.phone) ? lawyer.phone : "";
     if (phone) {
+      const actions = el("div", "actions");
       const call = el("a", "button", `Ligar ${phone}`);
       call.href = `tel:${phone.replace(/\s/g, "")}`;
       actions.append(call);
+      body.append(actions);
     }
-    if (profile) {
-      actions.append(externalLink(profile, phone ? "Perfil original" : "Contacto no perfil", phone ? "button secondary" : "button"));
-      if (!phone) actions.append(externalLink(profile, "Ver perfil", "button secondary"));
-    }
-    card.append(actions);
+    card.append(body);
     list.append(card);
   }
-
-  sourceLine.replaceChildren();
-  const source = data.source || {};
-  const when = source.retrievedAt ? new Date(source.retrievedAt).toLocaleString("pt-PT") : "";
-  sourceLine.append(el("span", null, `${source.note || ""} Índice de ${source.name || "origem"}${when ? `, lido em ${when}` : ""}. `));
-  const directory = safeDirectoryUrl(data.directoryUrl || source.url);
-  if (directory) sourceLine.append(externalLink(directory, "Abrir no directório de origem", null));
   results.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -149,12 +115,12 @@ async function loadMeta() {
   try {
     const response = await fetch(api("/api/meta"));
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Não foi possível ler o directório.");
+    if (!response.ok) throw new Error(data.error || "Não foi possível preparar a pesquisa.");
     fillSelect(areaSelect, data.areas, "Identificar a partir do texto");
     fillSelect(locationSelect, data.locations, "Sem preferência");
     if (data.disclaimer) document.querySelector("#aviso-fixo").textContent = data.disclaimer;
   } catch (error) {
-    formError.textContent = `${error.message} Pode consultar o directório em encontreadvogados.co.mz.`;
+    formError.textContent = error.message;
   }
 }
 

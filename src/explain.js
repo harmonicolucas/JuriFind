@@ -10,7 +10,7 @@ export function templateExplanation(lawyer, match) {
   const location = match.matchedLocation
     ? ` A localização ${match.matchedLocation} coincide com o local indicado.`
     : lawyer.locations.length
-      ? ` O directório indica exercício em ${listPt(lawyer.locations)}.`
+      ? ` O perfil indica exercício em ${listPt(lawyer.locations)}.`
       : "";
   const language = match.matchedLanguages?.length
     ? ` O perfil inclui ${listPt(match.matchedLanguages)}, língua referida no caso.`

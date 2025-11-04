@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JuriFind — Advogados para o seu caso em Moçambique</title>
-  <meta name="description" content="Descreva o seu caso jurídico e veja advogados ordenados pelas áreas de prática, localização e línguas publicadas no directório.">
+  <meta name="description" content="Descreva o seu caso jurídico e veja advogados ordenados pela área, pela cidade e pelas línguas do perfil.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
   <a class="skip" href="#caso">Saltar para a descrição do caso</a>
@@ -20,9 +20,9 @@
         </span>
       </a>
       <nav aria-label="Secções">
+        <a href="#caso">Descrever o caso</a>
         <a href="#como">Como funciona</a>
         <a href="#aviso">Aviso</a>
-        <a href="https://encontreadvogados.co.mz/advogado/" rel="noopener noreferrer">Directório de origem</a>
       </nav>
     </div>
   </header>
@@ -30,21 +30,21 @@
   <main id="topo">
     <section class="hero">
       <div class="wrap hero-grid">
-        <div>
-          <p class="eyebrow">Correspondência com o directório público</p>
-          <h1>Descreva o caso. Veja quem publica prática nessa área.</h1>
-          <p class="lede">O JuriFind lê a sua descrição em português, identifica áreas do Direito usadas no directório moçambicano e ordena advogados por essa correspondência, pela localização e pelas línguas indicadas no perfil.</p>
+        <div class="intro">
+          <p class="eyebrow">Moçambique</p>
+          <h1>Descreva o caso. Encontre quem actua nessa área.</h1>
+          <p class="lede">Escreva com as suas palavras. O JuriFind identifica a área, a cidade e a língua, e apresenta os advogados cuja prática publicada corresponde ao relato.</p>
           <ul class="points">
-            <li>Não inventa especialidades nem experiência.</li>
-            <li>A fotografia e a biografia ficam no perfil original.</li>
-            <li>O texto do caso não é gravado.</li>
+            <li>A ordem reflecte a correspondência com o perfil, não a qualidade profissional.</li>
+            <li>A fotografia aparece quando faz parte do perfil.</li>
+            <li>O texto do caso não fica guardado.</li>
           </ul>
         </div>
 
         <form id="caso" class="case-form">
           <div class="form-head">
             <h2>O seu caso</h2>
-            <p id="dica">Conte o que aconteceu, onde e o que procura. Evite número de identificação, dados de saúde e contactos de terceiros.</p>
+            <p id="dica">Conte o que aconteceu, onde e o que procura. Evite números de identificação, dados de saúde e contactos de terceiros.</p>
           </div>
           <label for="descricao">Descrição</label>
           <textarea id="descricao" name="descricao" required minlength="20" maxlength="2000" rows="7" aria-describedby="dica" placeholder="Exemplo: trabalhei dois anos numa loja na Matola e fui despedido sem carta. Não recebi os salários dos últimos três meses."></textarea>
@@ -74,46 +74,48 @@
 
     <section id="resultados" class="results wrap" aria-live="polite" hidden>
       <div class="results-head">
-        <h2>Advogados ordenados</h2>
+        <h2>Advogados para este caso</h2>
         <p id="resumo"></p>
       </div>
       <div id="aviso-resultado" class="notice"></div>
       <div id="lista" class="cards"></div>
-      <p id="fonte" class="source-line"></p>
     </section>
 
     <section id="como" class="how wrap">
-      <h2>Como a recomendação é feita</h2>
+      <h2>Como funciona</h2>
       <ol class="steps">
         <li>
-          <h3>Leitura do caso</h3>
-          <p>Regras sobre o direito praticado em Moçambique procuram temas como trabalho, família, terra, penal, fisco ou energia. Se estiver configurado um modelo de linguagem, ele só pode confirmar áreas que já existam no directório.</p>
+          <span class="step-no">1</span>
+          <h3>Conte o que aconteceu</h3>
+          <p>Um texto simples chega. Trabalho, família, terra, penal, fisco ou energia são reconhecidos no contexto moçambicano.</p>
         </li>
         <li>
-          <h3>Correspondência</h3>
-          <p>Cada advogado recebe pontos pelas áreas publicadas que coincidem, com um reforço se a cidade ou a língua também coincidir. A ordem não é uma avaliação da qualidade profissional.</p>
+          <span class="step-no">2</span>
+          <h3>Veja a correspondência</h3>
+          <p>Cada cartão mostra a fotografia, a cidade, as línguas e as áreas do perfil que coincidem com o caso.</p>
         </li>
         <li>
-          <h3>Perfil original</h3>
-          <p>O nome, as áreas, a cidade e as línguas vêm do índice público. O contacto abre o perfil de origem, onde estão o telefone publicado e a fotografia, quando existem.</p>
+          <span class="step-no">3</span>
+          <h3>Contacte directamente</h3>
+          <p>Quando o perfil tem telefone, pode ligar a partir do cartão. A lista não promete que o advogado aceite o caso.</p>
         </li>
       </ol>
     </section>
 
     <section id="aviso" class="legal wrap">
       <h2>Aviso</h2>
-      <p id="aviso-fixo">As recomendações resultam da correspondência com áreas, localização e línguas publicadas no directório. Não substituem aconselhamento jurídico de um advogado inscrito na Ordem dos Advogados de Moçambique, nem garantem aceitação do caso ou qualquer resultado.</p>
-      <p>O JuriFind é independente do directório <a href="https://encontreadvogados.co.mz/advogado/" rel="noopener noreferrer">Encontre Advogados</a>. Não copia biografias nem fotografias. Os dados pessoais do caso ficam no seu browser, salvo a descrição necessária para a análise do pedido, que não é armazenada.</p>
+      <p id="aviso-fixo">As recomendações correspondem às áreas, à localização e às línguas de cada perfil. Não substituem aconselhamento jurídico de um advogado inscrito na Ordem dos Advogados de Moçambique, nem garantem aceitação do caso ou qualquer resultado.</p>
+      <p>O JuriFind não é um serviço da Ordem dos Advogados de Moçambique. O relato do caso é usado só para esta análise e não fica armazenado.</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap footer-bar">
-      <p>JuriFind. Índice factual obtido do directório público, com ligação ao perfil original.</p>
-      <p>Não é um serviço da Ordem dos Advogados de Moçambique.</p>
+      <p>JuriFind</p>
+      <p>Recomendações para encontrar advogados em Moçambique.</p>
     </div>
   </footer>
   <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
