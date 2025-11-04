@@ -25,7 +25,7 @@ jobs:
       - name: Definir o endereço da API
         env:
           API_BASE: ${{ vars.JURIFIND_API_BASE }}
-        run: node -e "const fs=require('fs'); const base=process.env.API_BASE||''; fs.writeFileSync('web/config.js', 'window.JURIFIND_CONFIG = '+JSON.stringify({apiBase: base})+';\n');"
+        run: node scripts/write-pages-config.cjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web
