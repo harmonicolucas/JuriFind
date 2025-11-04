@@ -6,7 +6,8 @@
   <title>JuriFind IA — Software moçambicano</title>
   <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/geist-sans@5.2.5/index.css">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
   <a class="skip" href="#mensagem">Saltar para a mensagem</a>
@@ -65,7 +66,7 @@
         <button type="button" id="voltar" class="back-button" hidden>Voltar</button>
         <p class="top-title">Assistente jurídico</p>
         <form id="busca" class="global-search" role="search">
-          <label class="sr" for="busca-texto">Pesquisar</label>
+          <label for="busca-texto">Pesquisar</label>
           <input id="busca-texto" type="search" placeholder="Ex.: Lei do Trabalho, DUAT, despedimento">
           <button type="submit">Buscar</button>
         </form>
@@ -95,8 +96,10 @@
             <h2>Advogados</h2>
             <p>Nome, fotografia, áreas publicadas, cidade e telefone.</p>
           </div>
-          <label class="sr" for="procurar-advogado">Procurar advogado</label>
-          <input id="procurar-advogado" type="search" placeholder="Nome, área ou cidade" autocomplete="off">
+          <div class="directory-search">
+            <label for="procurar-advogado">Procurar advogado</label>
+            <input id="procurar-advogado" type="search" placeholder="Nome, área ou cidade" autocomplete="off">
+          </div>
         </div>
         <p id="directorio-estado" class="directory-status"></p>
         <div id="directorio-lista" class="cards"></div>
@@ -130,20 +133,22 @@
             <span>Mostrar primeiro só esta cidade</span>
           </label>
         </div>
-        <label class="sr" for="mensagem">Mensagem</label>
-        <textarea id="mensagem" name="mensagem" required maxlength="2000" rows="3" placeholder="Descreva o caso: o que aconteceu, em que cidade e o que pretende."></textarea>
+        <label class="field-label" for="mensagem">Descreva o caso</label>
+        <div class="ask-row">
+          <textarea id="mensagem" name="mensagem" maxlength="2000" rows="1" aria-describedby="form-error" placeholder="O que aconteceu, em que cidade e o que pretende."></textarea>
+          <button id="submeter" type="submit" aria-label="Enviar"><span aria-hidden="true">↑</span></button>
+        </div>
+        <p id="form-error" class="form-error" role="alert"></p>
         <div class="composer-bar">
           <button type="button" id="abrir-filtros" class="ghost" aria-expanded="false" aria-controls="personalizar">Área e cidade</button>
           <span id="contador" class="count">0/2000</span>
-          <button id="submeter" type="submit">Enviar</button>
         </div>
-        <p id="form-error" class="form-error" role="alert"></p>
       </form>
     </main>
   </div>
   <script src="corpus.js?v=11"></script>
   <script src="studio.js?v=11"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

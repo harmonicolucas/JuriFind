@@ -50,6 +50,11 @@ function api(path) {
   return `${apiBase}${path}`;
 }
 
+function setFormError(message) {
+  formError.textContent = message;
+  description.setAttribute("aria-invalid", message ? "true" : "false");
+}
+
 function el(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -269,7 +274,7 @@ async function showLawyers() {
 async function ask(text) {
   if (busy) return;
   busy = true;
-  formError.textContent = "";
+  setFormError("");
   welcome.hidden = true;
   showView("assistente");
   setActive("assistente");
@@ -294,7 +299,7 @@ async function ask(text) {
     const legal = mode !== "advogados" ? window.JuriFindStudio.hitsBubble(text) : null;
     if (legal) messages.append(legal);
     if (text.length < 20) {
-      if (!legal) formError.textContent = "Descreva o caso com pelo menos 20 caracteres, ou pergunte por um diploma como DUAT ou Lei do Trabalho.";
+      if (!legal) setFormError("Descreva o caso com pelo menos 20 caracteres, ou pergunte por um diploma como DUAT ou Lei do Trabalho.");
       else {
         description.value = "";
         updateCount();
@@ -403,12 +408,12 @@ form.addEventListener("submit", (event) => {
     return;
   }
   if (text.length < 2) {
-    formError.textContent = "Escreva a pergunta ou o caso.";
+    setFormError("Escreva a pergunta ou o caso.");
     description.focus();
     return;
   }
   if (mode === "advogados" && text.length < 20) {
-    formError.textContent = "Descreva o caso com pelo menos 20 caracteres.";
+    setFormError("Descreva o caso com pelo menos 20 caracteres.");
     description.focus();
     return;
   }
@@ -454,7 +459,7 @@ newChatButton.addEventListener("click", () => {
   historyList.replaceChildren();
   historyEmpty.hidden = false;
   welcome.hidden = false;
-  formError.textContent = "";
+  setFormError("");
   description.value = "";
   updateCount();
   showView("assistente");
