@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { isSourceProfile } from "./contacts.js";
+import { preferredPhotoUrl } from "./photos.js";
 import { plainText, unique } from "./text.js";
 
 const USER_AGENT = "JuriFind/1.0 (le o indice publico; liga ao perfil original)";
@@ -36,7 +37,12 @@ async function fetchAll(fetchImpl, baseUrl, restBase) {
       headers: { Accept: "application/json", "User-Agent": USER_AGENT },
     });
     if (response.status === 400) break;
-    if (!response.ok) throw new Error(`O directório respondeu ${response.status} em ${restBase}.`);
+    if (!response.ok) {
+      const error = new Error(`Fonte HTTP ${response.status}`);
+      error.status = 503;
+      error.publicMessage = "A lista de advogados não está acessível neste momento.";
+      throw error;
+    }
     const data = await response.json();
     if (!Array.isArray(data) || data.length === 0) break;
     items.push(...data);
@@ -89,6 +95,8 @@ export function buildIndex({ lawyers, areas, locations, languages, retrievedAt =
       areas: namesFor(raw.categoria_areas_pratica_advogado, areaTerms),
       locations: namesFor(raw["categoria-localizacao-advogado"], locationTerms),
       languages: namesFor(raw["categoria-linguas-advogado"], languageTerms),
+      photoId: Number(raw.featured_media) > 0 ? Number(raw.featured_media) : 0,
+      photoUrl: "",
       hasPhoto: Number(raw.featured_media) > 0,
     });
   }
@@ -98,7 +106,7 @@ export function buildIndex({ lawyers, areas, locations, languages, retrievedAt =
     .sort((a, b) => a.name.localeCompare(b.name, "pt"));
 
   return {
-    version: 1,
+    version: 2,
     retrievedAt,
     source: SOURCE_PAGE,
     areas: publish(areaTerms),
@@ -108,6 +116,32 @@ export function buildIndex({ lawyers, areas, locations, languages, retrievedAt =
   };
 }
 
+async function photoMap(fetchImpl, baseUrl, ids) {
+  const urls = new Map();
+  for (let offset = 0; offset < ids.length; offset += 40) {
+    const slice = ids.slice(offset, offset + 40);
+    const url = new URL(`${baseUrl.replace(/\/$/, "")}/media`);
+    url.searchParams.set("include", slice.join(","));
+    url.searchParams.set("per_page", "100");
+    url.searchParams.set("_fields", "id,source_url,media_details");
+    try {
+      const response = await fetchWithTimeout(fetchImpl, url, {
+        headers: { Accept: "application/json", "User-Agent": USER_AGENT },
+      });
+      if (!response.ok) continue;
+      const data = await response.json();
+      if (!Array.isArray(data)) continue;
+      for (const media of data) {
+        const photo = preferredPhotoUrl(media);
+        if (photo) urls.set(Number(media.id), photo);
+      }
+    } catch {
+      continue;
+    }
+  }
+  return urls;
+}
+
 export async function fetchDirectory(fetchImpl, baseUrl) {
   const [areas, locations, languages, lawyers] = await Promise.all([
     fetchAll(fetchImpl, baseUrl, TERMS.areas),
@@ -115,11 +149,18 @@ export async function fetchDirectory(fetchImpl, baseUrl) {
     fetchAll(fetchImpl, baseUrl, TERMS.languages),
     fetchAll(fetchImpl, baseUrl, "advogados"),
   ]);
-  return buildIndex({ areas, locations, languages, lawyers });
+  const index = buildIndex({ areas, locations, languages, lawyers });
+  const ids = [...new Set(index.lawyers.map((lawyer) => lawyer.photoId).filter((id) => id > 0))];
+  const photos = await photoMap(fetchImpl, baseUrl, ids);
+  index.lawyers = index.lawyers.map((lawyer) => ({
+    ...lawyer,
+    photoUrl: photos.get(lawyer.photoId) || "",
+  }));
+  return index;
 }
 
 function cacheIsValid(data) {
-  return Boolean(data && data.version === 1 && Array.isArray(data.lawyers) && Array.isArray(data.areas));
+  return Boolean(data && data.version === 2 && Array.isArray(data.lawyers) && Array.isArray(data.areas));
 }
 
 export async function loadIndex({

@@ -70,7 +70,7 @@ async function listen(app) {
   };
 }
 
-test("a página e a recomendação usam o perfil original", async (t) => {
+test("a página pública recomenda sem mostrar a origem dos dados", async (t) => {
   const ctx = await listen(handler());
   t.after(() => ctx.close());
   const page = await fetch(`${ctx.base}/`);
@@ -78,6 +78,7 @@ test("a página e a recomendação usam o perfil original", async (t) => {
   assert.equal(page.status, 200);
   assert.match(html, /JuriFind/);
   assert.match(html, /não substituem/i);
+  assert.equal(html.toLowerCase().includes("encontreadvogados"), false);
 
   const response = await fetch(`${ctx.base}/api/recommend`, {
     method: "POST",
@@ -89,11 +90,11 @@ test("a página e a recomendação usam o perfil original", async (t) => {
   const data = await response.json();
   assert.equal(response.status, 200);
   assert.equal(data.results[0].name, "Ilda Tembe");
-  assert.equal(data.results[0].profileUrl, "https://encontreadvogados.co.mz/advogados/ilda-tembe/");
+  assert.equal(data.results[0].photo, null);
+  assert.equal(JSON.stringify(data).toLowerCase().includes("encontreadvogados"), false);
   assert.match(data.results[0].explanation, /Laboral/);
   assert.equal(data.results[0].explanation.includes("Energia"), false);
   assert.match(data.disclaimer, /não substituem/i);
-  assert.match(data.directoryUrl, /categoria_areas_pratica_advogado\/laboral|contencioso-laboral/);
 });
 
 test("recusa descrição curta, excesso de pedidos e caminhos fora do site", async (t) => {

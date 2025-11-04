@@ -24,7 +24,7 @@ function refreshIndex() {
     excludeSlugs: config.excludeSlugs,
   }).then((value) => {
     index = value;
-    console.log(`Índice pronto: ${value.lawyers.length} advogados, obtido em ${value.retrievedAt}.`);
+    console.log(`Índice pronto: ${value.lawyers.length} advogados, ${value.lawyers.filter((lawyer) => lawyer.photoUrl).length} fotografias.`);
     return value;
   }).catch((error) => {
     console.error(error.message || "Falha ao ler o directório.");

@@ -7,6 +7,7 @@ import { safeWebPath } from "../src/paths.js";
 import { createRateLimiter } from "../src/rateLimit.js";
 import { rankLawyers } from "../src/recommend.js";
 import { redact } from "../src/redact.js";
+import { preferredPhotoUrl, isAllowedPhotoUrl } from "../src/photos.js";
 import { buildIndex } from "../src/source.js";
 import { fold } from "../src/text.js";
 import { validateRecommendInput } from "../src/validate.js";
@@ -210,6 +211,20 @@ test("o índice factual não guarda biografia nem perfis de outro sítio", () =>
   assert.equal(index.lawyers[0].hasPhoto, true);
   assert.equal(JSON.stringify(index).includes("biografia"), false);
   assert.equal(fold("Chókwè"), "chokwe");
+});
+
+test("aceita só fotografias alojadas com o perfil e ignora outros endereços", () => {
+  const media = {
+    source_url: "https://encontreadvogados.co.mz/wp-content/uploads/2025/08/tt-meio.png",
+    media_details: {
+      sizes: {
+        medium: { source_url: "https://encontreadvogados.co.mz/wp-content/uploads/2025/08/tt-meio-251x300.png" },
+      },
+    },
+  };
+  assert.match(preferredPhotoUrl(media), /tt-meio-251x300\.png$/);
+  assert.equal(isAllowedPhotoUrl("https://evil.example/wp-content/uploads/foto.png"), false);
+  assert.equal(preferredPhotoUrl({ source_url: "https://evil.example/foto.png" }), "");
 });
 
 test("impede caminhos fora da pasta do site e limita pedidos", () => {
