@@ -53,15 +53,16 @@ html[data-theme="dark"] {
 }
 
 * { box-sizing: border-box; }
-html, body { height: 100%; }
+html, body { min-height: 100%; }
 body {
   margin: 0;
-  overflow: hidden;
   color: var(--ink);
   background: var(--bg);
   font-size: 16px;
   line-height: 1.5;
 }
+body.is-app { height: 100%; overflow: hidden; }
+html:has(body.is-app) { height: 100%; overflow: hidden; }
 button, textarea, select, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
