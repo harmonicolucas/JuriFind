@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { classifyCase, mergeAnalysis, sanitizeModelInterpretation } from "../src/classify.js";
-import { extractPublishedPhone, formatMozPhone, isSourceProfile } from "../src/contacts.js";
+import { createContactLookup, extractPublishedPhone, formatMozPhone, isSourceProfile } from "../src/contacts.js";
 import { acceptExplanation, explanationCitesMissingArea, templateExplanation } from "../src/explain.js";
 import { safeWebPath } from "../src/paths.js";
 import { createRateLimiter } from "../src/rateLimit.js";
 import { rankLawyers } from "../src/recommend.js";
 import { redact } from "../src/redact.js";
-import { preferredPhotoUrl, isAllowedPhotoUrl } from "../src/photos.js";
+import { preferredPhotoUrl, isAllowedPhotoUrl, fetchPhoto } from "../src/photos.js";
 import { buildIndex } from "../src/source.js";
 import { fold } from "../src/text.js";
 import { validateRecommendInput } from "../src/validate.js";
@@ -237,4 +237,36 @@ test("impede caminhos fora da pasta do site e limita pedidos", () => {
   assert.equal(allow("a"), true);
   assert.equal(allow("a"), false);
   assert.equal(allow("b"), true);
+});
+
+test("encher o mapa de limites não liberta quem já chegou ao máximo", () => {
+  const allow = createRateLimiter({ limit: 1, windowMs: 1000, now: () => 5000, maxKeys: 2 });
+  assert.equal(allow("fixo"), true);
+  assert.equal(allow("outro"), true);
+  assert.equal(allow("novo"), true);
+  assert.equal(allow("outro"), false);
+});
+
+test("uma fotografia não é seguida se o servidor redireccionar", async () => {
+  let redirect;
+  const fetchImpl = async (_url, options) => {
+    redirect = options.redirect;
+    return { ok: false, status: 302, url: "https://evil.example/foto.png", headers: { get: () => null } };
+  };
+  const image = await fetchPhoto("https://encontreadvogados.co.mz/wp-content/uploads/foto.png", fetchImpl);
+  assert.equal(image, null);
+  assert.equal(redirect, "manual");
+});
+
+test("o perfil publicado não é seguido se o directório redireccionar", async () => {
+  let redirect;
+  const lookup = createContactLookup({
+    fetchImpl: async (_url, options) => {
+      redirect = options.redirect;
+      return { ok: false, status: 302, url: "https://evil.example/advogados/x/", text: async () => "" };
+    },
+  });
+  const phone = await lookup("https://encontreadvogados.co.mz/advogados/tomas-timbane/");
+  assert.equal(phone, null);
+  assert.equal(redirect, "manual");
 });

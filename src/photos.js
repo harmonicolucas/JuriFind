@@ -25,7 +25,7 @@ export async function fetchPhoto(photoUrl, fetchImpl = fetch) {
     const response = await fetchImpl(photoUrl, {
       headers: { Accept: "image/avif,image/webp,image/png,image/jpeg" },
       signal: controller.signal,
-      redirect: "follow",
+      redirect: "manual",
     });
     if (!response.ok) return null;
     if (response.url && !isAllowedPhotoUrl(response.url)) return null;
