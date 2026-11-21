@@ -7,23 +7,22 @@
   <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/geist-sans@5.2.5/index.css">
-  <link rel="stylesheet" href="styles.css?v=15">
-  <link rel="stylesheet" href="home.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="home.css?v=4">
 </head>
 <body>
   <a class="skip" href="#capa-texto">Saltar para a pergunta</a>
   <div id="capa" class="landing">
     <header class="site-nav" id="site-nav">
       <button type="button" class="nav-burger" id="nav-burger" aria-expanded="false" aria-controls="site-links">Menu</button>
+      <a class="wordmark" href="#topo">JuriFind IA</a>
       <nav id="site-links" aria-label="Principal">
-        <button type="button" data-open="advogados">Advogados</button>
-        <a href="#funcionalidades">Funcionalidades</a>
-        <button type="button" data-open="vade">Vade Mecum</button>
-        <button type="button" data-open="jurisprudencia">Tribunais</button>
-        <button type="button" data-open="dicionario">Dicionário</button>
-        <a class="wordmark" href="#topo">JuriFind IA</a>
-        <button type="button" data-open="questoes">Questões</button>
-        <button type="button" data-open="noticias">Notícias</button>
+        <div class="nav-links">
+          <a href="#funcionalidades">Funcionalidades</a>
+          <button type="button" data-open="advogados">Advogados</button>
+          <button type="button" data-open="vade">Vade Mecum</button>
+          <button type="button" data-open="questoes">Questões</button>
+        </div>
         <button type="button" class="pill dark" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
       </nav>
     </header>
@@ -31,15 +30,20 @@
     <section class="hero" id="topo">
       <img class="hero-mark" src="favicon.svg" alt="">
       <div class="hero-copy">
+        <p class="eyebrow">Direito de Moçambique · Maputo</p>
         <h1>Encontre o advogado a partir do caso.</h1>
         <div class="hero-row">
           <p>Descreva o que aconteceu. O JuriFind IA indica a área do direito moçambicano e mostra quem publica essa prática, com fotografia e telefone.</p>
-          <button type="button" class="pill light" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
         </div>
-        <button type="button" class="film" id="ver-demo">
-          <img src="favicon.svg" alt="">
-          <span><small>Ver</small>O assistente em movimento</span>
-        </button>
+        <div class="hero-actions">
+          <button type="button" class="pill light" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
+          <button type="button" class="film" id="ver-demo">Ver como o assistente responde</button>
+        </div>
+        <ul class="hero-points">
+          <li>Sem conta</li>
+          <li>Só dados publicados</li>
+          <li>O relato não fica gravado</li>
+        </ul>
       </div>
     </section>
 
