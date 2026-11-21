@@ -22,6 +22,8 @@ O fluxo `.github/workflows/ci.yml` corre `npm test` em cada push e em cada pull 
 
 ## Frontend no GitHub Pages
 
+A página publicada é [https://harmonicolucas.github.io/JuriFind/](https://harmonicolucas.github.io/JuriFind/).
+
 O fluxo `.github/workflows/pages.yml` publica apenas a pasta `web/`. Antes de o activar:
 
 1. No repositório, em Settings → Pages, escolha GitHub Actions como fonte.

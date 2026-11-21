@@ -1,5 +1,7 @@
 # JuriFind IA
 
+Página publicada: [https://harmonicolucas.github.io/JuriFind/](https://harmonicolucas.github.io/JuriFind/)
+
 JuriFind IA suggests a Mozambican lawyer from a description of the case written in Portuguese. The ranking uses only the practice areas, the city and the languages that lawyer already published. It does not invent a specialty, it does not copy a biography, and it does not store the text of the case.
 
 O JuriFind IA é um software moçambicano que recomenda advogados a partir de uma descrição livre do caso, em português. A ordenação usa apenas áreas de prática, localização e línguas publicadas no directório [Encontre Advogados](https://encontreadvogados.co.mz/advogado/). Não inventa especialidades e não copia biografias.
@@ -35,7 +37,7 @@ A configuração opcional está em [`.env.example`](.env.example). Copie para `.
 
 ## Estado de publicação
 
-O código inclui testes, um contentor e fluxos de integração contínua e de GitHub Pages. Isso não significa que o repositório remoto, o GitHub Pages, o alojamento da API, o DNS ou um domínio `.co.mz` já estejam activos. Confirme esses passos em [docs/publicacao.md](docs/publicacao.md) antes de os anunciar.
+A interface está publicada em [https://harmonicolucas.github.io/JuriFind/](https://harmonicolucas.github.io/JuriFind/). O Pages serve a pasta `web/` e não executa a API. O alojamento da API, o DNS e um domínio `.co.mz` continuam por configurar. Os passos estão em [docs/publicacao.md](docs/publicacao.md).
 
 ## Licença
 
