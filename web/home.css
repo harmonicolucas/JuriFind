@@ -399,7 +399,7 @@
 .mode strong { font-weight: 500; }
 .mode::after { content: "+"; }
 .mode.is-on { display: block; border-radius: 22px; }
-.mode.is-on::after { content: "–"; float: right; }
+.mode.is-on::after { content: "-"; float: right; }
 
 .mock {
   min-height: 180px;
