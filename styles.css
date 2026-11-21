@@ -482,7 +482,7 @@ body.is-app #aplicacao { animation: card-in 0.4s ease; }
 }
 .entry h3 { margin: 0 0 6px; }
 .entry p { margin: 0 0 8px; }
-.eyebrow, .diploma { color: var(--muted); font-size: 0.82rem; }
+.eyebrow, .diploma { color: var(--ink); font-size: 0.92rem; font-weight: 650; }
 .compare-controls, .folder-form, .choices { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
 .compare-controls select, .folder-form input, .vista > input {
   border: 1px solid var(--line);
