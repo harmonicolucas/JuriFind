@@ -53,7 +53,7 @@ export function createContactLookup({ fetchImpl = fetch, cache = new Map(), ttlM
           "User-Agent": "JuriFind/1.0 (referencia o perfil original; nao republica biografias)",
         },
         signal: controller.signal,
-        redirect: "follow",
+        redirect: "manual",
       });
       if (!response.ok) return null;
       if (response.url && !isSourceProfile(response.url)) return null;
