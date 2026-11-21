@@ -1,5 +1,7 @@
 # JuriFind IA
 
+JuriFind IA suggests a Mozambican lawyer from a description of the case written in Portuguese. The ranking uses only the practice areas, the city and the languages that lawyer already published. It does not invent a specialty, it does not copy a biography, and it does not store the text of the case.
+
 O JuriFind IA é um software moçambicano que recomenda advogados a partir de uma descrição livre do caso, em português. A ordenação usa apenas áreas de prática, localização e línguas publicadas no directório [Encontre Advogados](https://encontreadvogados.co.mz/advogado/). Não inventa especialidades e não copia biografias.
 
 ## O que faz
