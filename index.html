@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JuriFind IA - Software moçambicano</title>
+  <meta name="description" content="JuriFind IA é um software moçambicano. Descreva o caso e encontre advogados da área, com fotografia e contacto.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/geist-sans@5.2.5/index.css">
+  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="home.css?v=2">
+</head>
+<body>
+  <a class="skip" href="#capa-texto">Saltar para a pergunta</a>
+  <div id="capa" class="landing">
+    <header class="site-nav" id="site-nav">
+      <button type="button" class="nav-burger" id="nav-burger" aria-expanded="false" aria-controls="site-links">Menu</button>
+      <nav id="site-links" aria-label="Principal">
+        <button type="button" data-open="advogados">Advogados</button>
+        <a href="#funcionalidades">Funcionalidades</a>
+        <button type="button" data-open="vade">Vade Mecum</button>
+        <button type="button" data-open="jurisprudencia">Tribunais</button>
+        <button type="button" data-open="dicionario">Dicionário</button>
+        <a class="wordmark" href="#topo">JuriFind IA</a>
+        <button type="button" data-open="questoes">Questões</button>
+        <button type="button" data-open="noticias">Notícias</button>
+        <button type="button" class="pill dark" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
+      </nav>
+    </header>
+
+    <section class="hero" id="topo">
+      <img class="hero-mark" src="favicon.svg" alt="">
+      <div class="hero-copy">
+        <h1>Encontre o advogado a partir do caso.</h1>
+        <div class="hero-row">
+          <p>Descreva o que aconteceu. O JuriFind IA indica a área do direito moçambicano e mostra quem publica essa prática, com fotografia e telefone.</p>
+          <button type="button" class="pill light" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
+        </div>
+        <button type="button" class="film" id="ver-demo">
+          <img src="favicon.svg" alt="">
+          <span><small>Ver</small>O assistente em movimento</span>
+        </button>
+      </div>
+    </section>
+
+    <p class="marquee-label">Cidades do directório</p>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Maputo</span><span>Matola</span><span>Beira</span><span>Nampula</span><span>Quelimane</span><span>Tete</span><span>Pemba</span><span>Inhambane</span><span>Chimoio</span><span>Xai-Xai</span>
+        <span>Maputo</span><span>Matola</span><span>Beira</span><span>Nampula</span><span>Quelimane</span><span>Tete</span><span>Pemba</span><span>Inhambane</span><span>Chimoio</span><span>Xai-Xai</span>
+      </div>
+    </div>
+
+    <section class="block" id="funcionalidades">
+      <h2>O assistente jurídico para direito moçambicano</h2>
+      <p class="sub">Indica a área a partir do relato e mostra advogados com a prática, a cidade e o contacto publicados.</p>
+      <div class="stage">
+        <div class="modes" role="list">
+          <button type="button" class="mode is-on" data-mode="explicar" data-label="Explicar">
+            <strong>Explicar o direito</strong>
+            <span>Identifica a área e o diploma a partir do relato.</span>
+          </button>
+          <button type="button" class="mode" data-mode="advogados" data-label="Advogados">
+            <strong>Encontrar advogados</strong>
+            <span>Nome, fotografia, cidade e telefone publicados.</span>
+          </button>
+          <button type="button" class="mode" data-mode="comparar" data-label="Comparar">
+            <strong>Comparar diplomas</strong>
+            <span>Dois textos do direito moçambicano lado a lado.</span>
+          </button>
+          <button type="button" class="mode" data-mode="provas" data-label="Questões">
+            <strong>Estudar questões</strong>
+            <span>Perguntas para rever a matéria já reunida.</span>
+          </button>
+          <button type="button" class="mode" data-mode="vade" data-label="Vade Mecum">
+            <strong>Vade Mecum</strong>
+            <span>Diplomas já identificados, sem transcrever o articulado.</span>
+          </button>
+          <button type="button" class="mode" data-mode="jurisprudencia" data-label="Tribunais">
+            <strong>Tribunais</strong>
+            <span>A organização judiciária, sem acórdãos inventados.</span>
+          </button>
+        </div>
+        <div class="chat-card" id="demo">
+          <div class="chat-top"><span id="capa-etiqueta">Explicar</span><span>JuriFind IA</span></div>
+          <div class="demo-stage" id="demo-stage" aria-live="polite"></div>
+          <form id="capa-caso">
+          <label class="sr" for="capa-texto">Descreva o caso</label>
+          <div class="chat-ask">
+            <input id="capa-texto" name="caso" placeholder="Descreva o caso: o que aconteceu e em que cidade." autocomplete="off">
+            <button type="submit" aria-label="Enviar"><span aria-hidden="true">↑</span></button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="block plain" id="modulos">
+      <div class="section-head">
+        <h2>Tudo o que a consulta precisa, num só lugar.</h2>
+        <div class="pager">
+          <span id="slide-count">01 / 06</span>
+          <button type="button" id="slide-prev" aria-label="Módulo anterior">←</button>
+          <button type="button" id="slide-next" aria-label="Módulo seguinte">→</button>
+        </div>
+      </div>
+      <div class="slides">
+        <article class="slide">
+          <div class="mock">
+            <p class="demo-ask is-in">Fui despedido na Matola sem carta.</p>
+            <p>Laboral · Lei n.º 13/2023</p>
+          </div>
+          <p class="num">01</p>
+          <h3>Assistente</h3>
+          <p>O relato indica a área do direito moçambicano e, quando o texto chega, os advogados com essa prática publicada.</p>
+        </article>
+        <article class="slide" hidden>
+          <div class="mock faces">
+            <span></span><span></span><span></span>
+            <p>Nome, fotografia, cidade e telefone.</p>
+          </div>
+          <p class="num">02</p>
+          <h3>Advogados</h3>
+          <p>Lista com nome, fotografia quando existe, áreas, cidade e botão para ligar para o telefone publicado.</p>
+        </article>
+        <article class="slide" hidden>
+          <div class="mock">
+            <p class="demo-ask is-in">DUAT</p>
+            <p>Lei n.º 19/97 · terras</p>
+          </div>
+          <p class="num">03</p>
+          <h3>Vade Mecum</h3>
+          <p>Constituição, Lei da Família, Lei do Trabalho, Código Penal e outros diplomas já conferidos. O articulado não é reproduzido.</p>
+        </article>
+        <article class="slide" hidden>
+          <div class="mock">
+            <p>Supremo Tribunal de Justiça</p>
+            <p>Tribunal Administrativo</p>
+            <p>Tribunais judiciais</p>
+          </div>
+          <p class="num">04</p>
+          <h3>Tribunais</h3>
+          <p>Mapa da organização judiciária moçambicana. Não há decisões inventadas.</p>
+        </article>
+        <article class="slide" hidden>
+          <div class="mock">
+            <p><strong>DUAT</strong></p>
+            <p>Direito de uso e aproveitamento da terra.</p>
+          </div>
+          <p class="num">05</p>
+          <h3>Dicionário</h3>
+          <p>Termos usados no direito de Moçambique, com o sentido usado neste sistema.</p>
+        </article>
+        <article class="slide" hidden>
+          <div class="mock">
+            <p>1. Qual o diploma do trabalho em vigor?</p>
+            <p>Lei n.º 13/2023</p>
+          </div>
+          <p class="num">06</p>
+          <h3>Questões</h3>
+          <p>Perguntas de escolha múltipla para rever a matéria que já está no Vade Mecum.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="stats">
+      <p>Assistente, advogados, legislação reunida e estudo no mesmo sítio, para o direito moçambicano.</p>
+      <div>
+        <div><strong>Caso</strong><span>O relato indica a área.</span></div>
+        <div><strong>Perfil</strong><span>Nome, fotografia e cidade publicados.</span></div>
+        <div><strong>Telefone</strong><span>Só o número que consta do perfil.</span></div>
+      </div>
+    </section>
+
+    <section class="block" id="formas">
+      <h2>Quatro formas de consultar o direito moçambicano.</h2>
+      <p class="sub">Assistente, directório, legislação reunida e estudo. O mesmo sítio, sem conta.</p>
+      <div class="product-grid">
+        <button type="button" class="product" data-open="assistente">
+          <h3>Assistente</h3>
+          <p>Descreva o caso e veja a área, o diploma e os advogados correspondentes.</p>
+          <span>Começar →</span>
+        </button>
+        <button type="button" class="product" data-open="advogados">
+          <h3>Advogados</h3>
+          <p>Procure por nome, área ou cidade e ligue para o telefone publicado no perfil.</p>
+          <span>Abrir a lista →</span>
+        </button>
+        <button type="button" class="product" data-open="vade">
+          <h3>Vade Mecum</h3>
+          <p>Pesquise os diplomas já identificados. O texto integral dos artigos não entra aqui.</p>
+          <span>Consultar →</span>
+        </button>
+        <button type="button" class="product" data-open="questoes">
+          <h3>Questões</h3>
+          <p>Reveja a matéria com perguntas escritas a partir desses diplomas.</p>
+          <span>Estudar →</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="block dark" id="percurso">
+      <h2>Do relato ao contacto.</h2>
+      <p class="sub">Quatro passos, sempre com o que está publicado.</p>
+      <ol class="layers cols">
+        <li><h3>Relate o caso</h3><p>O que aconteceu, em que cidade e o que pretende.</p><span>01</span></li>
+        <li><h3>Confira a área</h3><p>O sistema indica a área do direito moçambicano e o diploma que enquadra o relato.</p><span>02</span></li>
+        <li><h3>Veja o perfil</h3><p>Nome, fotografia quando existe, áreas e cidade publicadas.</p><span>03</span></li>
+        <li><h3>Ligue</h3><p>O botão de telefone usa só o número que consta do perfil.</p><span>04</span></li>
+      </ol>
+    </section>
+
+    <section class="block" id="perguntas">
+      <h2>Perguntas frequentes</h2>
+      <div class="faqs">
+        <details>
+          <summary>O que é o JuriFind IA?</summary>
+          <p>É um software moçambicano. Descreve-se um caso e o sistema indica a área do direito e mostra advogados com essa prática publicada.</p>
+        </details>
+        <details>
+          <summary>Como aparece um advogado?</summary>
+          <p>Pelo nome, pela fotografia quando existe, pelas áreas e pela cidade publicadas no perfil, e por um botão para ligar.</p>
+        </details>
+        <details>
+          <summary>O Vade Mecum traz o texto das leis?</summary>
+          <p>Não. Reúne diplomas já identificados, como a Constituição de 2004, a Lei da Família, a Lei do Trabalho de 2023 e o Código Penal de 2019, sem reproduzir o articulado.</p>
+        </details>
+        <details>
+          <summary>Há acórdãos no separador Tribunais?</summary>
+          <p>Não. Esse separador descreve a organização dos tribunais. Não são criadas decisões.</p>
+        </details>
+        <details>
+          <summary>Preciso de criar conta?</summary>
+          <p>Não. A consulta abre no browser. Pastas, etiquetas e recentes ficam apenas neste dispositivo.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="closing">
+      <h2>Comece pelo próximo caso.</h2>
+      <button type="button" class="pill dark" data-open="assistente">Começar <span aria-hidden="true">→</span></button>
+      <ul>
+        <li>Área do direito moçambicano a partir do relato</li>
+        <li>Advogados com fotografia, cidade e telefone publicados</li>
+        <li>Vade Mecum, tribunais, dicionário e questões no mesmo sítio</li>
+      </ul>
+    </section>
+
+    <footer class="site-foot">
+      <div>
+        <strong>JuriFind IA</strong>
+        <p>Direito de Moçambique.</p>
+      </div>
+      <div>
+        <p>Consultar</p>
+        <button type="button" data-open="assistente">Assistente</button>
+        <button type="button" data-open="advogados">Advogados</button>
+        <button type="button" data-open="vade">Vade Mecum</button>
+        <button type="button" data-open="jurisprudencia">Tribunais</button>
+      </div>
+      <div>
+        <p>Estudar</p>
+        <button type="button" data-open="dicionario">Dicionário</button>
+        <button type="button" data-open="questoes">Questões</button>
+        <button type="button" data-open="comparar">Comparar</button>
+        <button type="button" data-open="atualizacoes">Atualizações</button>
+      </div>
+      <div>
+        <p>O meu material</p>
+        <button type="button" data-open="pastas">Pastas</button>
+        <button type="button" data-open="etiquetas">Etiquetas</button>
+        <button type="button" data-open="recentes">Recentes</button>
+        <button type="button" data-open="noticias">Notícias</button>
+      </div>
+      <p class="giant">JuriFind IA</p>
+      <p class="copy">© 2026 JuriFind IA · Maputo, Moçambique</p>
+    </footer>
+  </div>
+
+  <button type="button" id="cortina" class="scrim" hidden aria-label="Fechar menu"></button>
+  <div class="shell" id="aplicacao" hidden>
+    <aside id="sidebar" class="sidebar">
+      <a class="brand" href="#conversa">
+        <img class="mark" src="favicon.svg" alt="" width="40" height="40">
+        <span>
+          <strong>JuriFind IA</strong>
+          <small>Direito de Moçambique</small>
+        </span>
+      </a>
+      <nav aria-label="Secções">
+        <p class="nav-label">Consultar</p>
+        <button type="button" class="nav-item is-active" data-panel="assistente">Assistente</button>
+        <button type="button" class="nav-item" data-panel="advogados">Advogados</button>
+        <button type="button" class="nav-item" data-panel="vade">Vade Mecum</button>
+        <button type="button" class="nav-item" data-panel="jurisprudencia">Tribunais</button>
+        <button type="button" class="nav-item" data-panel="dicionario">Dicionário</button>
+        <button type="button" class="nav-item" data-panel="atualizacoes">Atualizações</button>
+        <button type="button" class="nav-item" data-panel="noticias">Notícias</button>
+        <p class="nav-label">Estudar</p>
+        <button type="button" class="nav-item" data-panel="questoes">Questões</button>
+        <button type="button" class="nav-item" data-panel="comparar">Comparar</button>
+        <p class="nav-label">O meu material</p>
+        <button type="button" class="nav-item" data-panel="pastas">Pastas</button>
+        <button type="button" class="nav-item" data-panel="etiquetas">Etiquetas</button>
+        <button type="button" class="nav-item" data-panel="recentes">Recentes</button>
+        <p class="nav-label">Afinar a pesquisa</p>
+        <button type="button" class="nav-item" data-panel="areas">Áreas</button>
+        <button type="button" class="nav-item" data-panel="cidades">Cidades</button>
+      </nav>
+      <div id="painel-areas" class="side-panel" hidden>
+        <p class="side-title">Áreas</p>
+        <div id="lista-areas" class="chip-list"></div>
+      </div>
+      <div id="painel-cidades" class="side-panel" hidden>
+        <p class="side-title">Cidades</p>
+        <div id="lista-cidades" class="chip-list"></div>
+      </div>
+      <div class="side-history">
+        <h2>Nesta visita</h2>
+        <p id="historico-vazio" class="history-empty">As perguntas ficam aqui até fechar a página.</p>
+        <ol id="historico"></ol>
+      </div>
+      <div class="side-foot">
+        <button type="button" id="tema" class="nav-item">Tema escuro</button>
+        <button type="button" id="nova" class="nav-item">Nova conversa</button>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <button type="button" id="inicio" class="back-button">Início</button>
+        <button type="button" id="menu" class="icon-button" aria-expanded="false" aria-controls="sidebar">Menu</button>
+        <button type="button" id="voltar" class="back-button" hidden>Voltar</button>
+        <p class="top-title">Assistente jurídico</p>
+        <form id="busca" class="global-search" role="search">
+          <label for="busca-texto">Pesquisar</label>
+          <input id="busca-texto" type="search" placeholder="Ex.: Lei do Trabalho, DUAT, despedimento">
+          <button type="submit">Buscar</button>
+        </form>
+      </header>
+
+      <div id="conversa" class="thread">
+        <div id="boas-vindas" class="welcome">
+          <p class="kicker">Moçambique</p>
+          <h1>Encontre o advogado a partir do caso</h1>
+          <p class="lede">Descreva o que aconteceu. O JuriFind IA indica a área do direito moçambicano e mostra advogados com a prática, a cidade e o contacto publicados.</p>
+          <ol class="steps">
+            <li><strong>Relate</strong><span>O que aconteceu, em que cidade e o que pretende.</span></li>
+            <li><strong>Confira</strong><span>A área e o diploma que enquadram o relato.</span></li>
+            <li><strong>Contacte</strong><span>Fotografia, prática publicada e telefone.</span></li>
+          </ol>
+          <p class="suggest-label">Comece por um exemplo</p>
+          <div id="sugestoes" class="suggestions"></div>
+        </div>
+        <div id="mensagens" class="messages" aria-live="polite"></div>
+      </div>
+
+      <section id="vista" class="vista" hidden></section>
+
+      <section id="directorio" class="directory" hidden>
+        <div class="directory-head">
+          <div>
+            <h2>Advogados</h2>
+            <p>Nome, fotografia, áreas publicadas, cidade e telefone.</p>
+          </div>
+          <div class="directory-search">
+            <label for="procurar-advogado">Procurar advogado</label>
+            <input id="procurar-advogado" type="search" placeholder="Nome, área ou cidade" autocomplete="off">
+          </div>
+        </div>
+        <p id="directorio-estado" class="directory-status"></p>
+        <div id="directorio-lista" class="cards"></div>
+      </section>
+
+      <form id="caso" class="composer">
+        <div id="personalizar" class="personalize" hidden>
+          <div class="mode-field">
+            <label for="modo">Tipo de conversa</label>
+            <select id="modo" name="modo">
+              <option value="explicar">Explicar o direito moçambicano</option>
+              <option value="comparar">Comparar dois diplomas</option>
+              <option value="advogados">Encontrar advogados</option>
+              <option value="provas">Estudar para questões</option>
+            </select>
+          </div>
+          <div>
+            <label for="area">Área</label>
+            <select id="area" name="area">
+              <option value="">Identificar a partir do texto</option>
+            </select>
+          </div>
+          <div>
+            <label for="localizacao">Cidade</label>
+            <select id="localizacao" name="localizacao">
+              <option value="">Sem preferência</option>
+            </select>
+          </div>
+          <label class="check" for="apenas-local">
+            <input id="apenas-local" name="apenas-local" type="checkbox" disabled>
+            <span>Mostrar primeiro só esta cidade</span>
+          </label>
+        </div>
+        <label class="field-label" for="mensagem">Descreva o caso</label>
+        <div class="ask-row">
+          <textarea id="mensagem" name="mensagem" maxlength="2000" rows="1" aria-describedby="form-error" placeholder="O que aconteceu, em que cidade e o que pretende."></textarea>
+          <button id="submeter" type="submit" aria-label="Enviar"><span aria-hidden="true">↑</span></button>
+        </div>
+        <p id="form-error" class="form-error" role="alert"></p>
+        <div class="composer-bar">
+          <button type="button" id="abrir-filtros" class="ghost" aria-expanded="false" aria-controls="personalizar">Área e cidade</button>
+          <span id="contador" class="count">0/2000</span>
+        </div>
+      </form>
+    </main>
+  </div>
+  <script src="corpus.js?v=11"></script>
+  <script src="studio.js?v=11"></script>
+  <script src="config.js"></script>
+  <script src="app.js?v=16"></script>
+</body>
+</html>
