@@ -7,11 +7,11 @@
 }
 .landing button, .landing input, .landing a { font: inherit; }
 .landing button { cursor: pointer; }
-.landing h1, .landing h2, .landing h3 {
-  font-family: inherit;
-  font-weight: 520;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
+.landing h1, .landing h2, .landing h3, .closing h2 {
+  font-family: Newsreader, Georgia, serif;
+  font-weight: 460;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
 .site-nav {
@@ -105,29 +105,37 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 132px 24px 72px;
+  min-height: 92vh;
+  padding: 140px 24px 80px;
   color: #fffcf8;
-  background:
-    linear-gradient(180deg, rgba(28, 25, 21, 0.2), rgba(28, 25, 21, 0.72)),
-    #1c1915;
+  background: #1a140f;
   overflow: hidden;
 }
-.hero-mark {
+.hero-photo {
   position: absolute;
-  right: max(24px, calc(50% - 520px));
-  top: 96px;
-  width: min(280px, 36vw);
-  opacity: 0.16;
+  inset: -8%;
+  background: url("images/hero-maputo.jpg") center 42% / cover no-repeat;
+  animation: ken 26s ease-in-out infinite alternate;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(22, 14, 10, 0.78) 0%, rgba(22, 14, 10, 0.22) 34%, rgba(22, 14, 10, 0.72) 100%),
+    linear-gradient(90deg, rgba(22, 14, 10, 0.78), rgba(22, 14, 10, 0.12) 70%);
   pointer-events: none;
 }
-.hero-copy { position: relative; width: min(820px, 100%); }
+.hero-copy { position: relative; z-index: 1; width: min(820px, 100%); }
 .eyebrow {
-  margin: 0 0 14px;
-  color: #c4a574;
-  font-size: 0.82rem;
-  font-weight: 650;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  margin: 0 0 12px;
+  color: #f4e7d4;
+  font-family: Newsreader, Georgia, serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  font-weight: 450;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .hero h1 {
   margin: 0;
@@ -214,11 +222,12 @@
 .mode span { color: #5c564e; font-size: 0.88rem; margin-top: 4px; line-height: 1.4; }
 .mode:hover, .mode:focus-visible { background: #f3efe8; }
 .mode.is-on {
-  background: #1f3d34;
-  color: #fffcf8;
-  border-color: #1f3d34;
+  background: #fff;
+  color: #1c1915;
+  border-color: transparent;
+  box-shadow: inset 3px 0 0 #6b3a2a;
 }
-.mode.is-on span { color: rgba(255, 252, 248, 0.82); }
+.mode.is-on span { color: #5c564e; }
 .mode::after { content: none; }
 .chat-card {
   min-height: 480px;
@@ -363,14 +372,26 @@
 .faqs p { margin: 0 0 16px; color: #4b453e; line-height: 1.55; }
 
 .closing {
+  position: relative;
+  overflow: hidden;
   margin: 56px auto 24px;
   width: min(1080px, calc(100% - 48px));
   background: #1c1915;
   color: #fffcf8;
   border-radius: 28px;
-  padding: 56px 40px;
+  padding: 72px 40px;
   text-align: center;
 }
+.closing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(20, 14, 10, 0.62), rgba(20, 14, 10, 0.78)),
+    url("images/mesa-advogado.jpg") center/cover no-repeat;
+  transform: scale(1.04);
+}
+.closing > * { position: relative; z-index: 1; }
 .closing h2 { margin: 0 auto 22px; font-size: clamp(2rem, 4vw, 3.2rem); max-width: 16ch; color: #fffcf8; }
 .closing .pill.dark { background: #fffcf8; color: #1c1915; }
 .closing ul {
@@ -516,7 +537,9 @@
 .stats span { color: #3f3a34; font-size: 1.02rem; }
 
 .block.dark {
-  background: #1c1915;
+  background:
+    linear-gradient(180deg, rgba(22, 16, 12, 0.84), rgba(22, 16, 12, 0.9)),
+    url("images/mesa-advogado.jpg") center/cover;
   color: #fffcf8;
   margin: 56px 24px 0;
   border-radius: 28px;
@@ -539,9 +562,25 @@
 .layers.cols p { color: rgba(255, 252, 248, 0.74); }
 .layers.cols span { margin-top: auto; color: #c4a574; font-weight: 700; letter-spacing: 0.08em; }
 .giant { display: none; }
+.landing.is-leaving { opacity: 0; transition: opacity 0.28s ease; }
+.js .reveal { opacity: 0; transform: translateY(18px); }
+.js .reveal.is-shown { opacity: 1; transform: none; transition: opacity 0.7s ease, transform 0.7s ease; }
+.demo-stage.is-switching .demo-ask,
+.demo-stage.is-switching .demo-answer,
+.demo-stage.is-switching .source-card { animation: rise 0.45s ease both; }
+@keyframes ken {
+  from { transform: scale(1.05) translate3d(0, 0, 0); }
+  to { transform: scale(1.12) translate3d(-1.6%, -1%, 0); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .demo-ask, .demo-think, .demo-answer, .source-card, .product { transition: none; }
+  .demo-ask, .demo-think, .demo-answer, .source-card, .product, .reveal, .landing.is-leaving { transition: none; animation: none; }
+  .hero-photo { animation: none; }
+  .js .reveal { opacity: 1; transform: none; }
 }
 @media (max-width: 860px) {
   .nav-burger {
@@ -601,8 +640,7 @@
   .chat-card { min-height: 0; }
   .demo-stage { padding-right: 0; min-height: 0; }
   .demo-sources { position: static; width: auto; margin-top: 16px; }
-  .hero { padding-top: 112px; }
-  .hero-mark { display: none; }
+  .hero { min-height: 0; padding-top: 112px; }
   .block.dark { margin: 40px 16px 0; }
   .layers.cols li { border-left: 0; border-top: 1px solid rgba(255, 252, 248, 0.16); min-height: 0; padding: 18px 0; }
   .closing { padding: 40px 22px; }

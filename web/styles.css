@@ -391,6 +391,22 @@ html[data-theme="dark"] .nav-item.is-active { color: #0d1016; }
   font-size: 0.75rem;
 }
 .actions { margin-top: 8px; }
+.actions .profile-link {
+  background: transparent;
+  color: var(--accent);
+  min-height: 44px;
+  padding: 8px 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lawyer { animation: card-in 0.45s ease both; }
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+#aplicacao.is-leaving { opacity: 0; transition: opacity 0.22s ease; }
+body.is-app #aplicacao { animation: card-in 0.4s ease; }
 .actions a, #submeter {
   display: inline-flex;
   align-items: center;
