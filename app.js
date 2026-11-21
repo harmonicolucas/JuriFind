@@ -69,7 +69,61 @@ function initials(name) {
 }
 
 function safePhotoPath(path) {
-  return typeof path === "string" && /^\/api\/photos\/[a-z0-9-]+$/.test(path) ? path : "";
+  if (typeof path !== "string" || !path) return "";
+  if (/^\/api\/photos\/[a-z0-9-]+$/.test(path)) return path;
+  try {
+    const url = new URL(path);
+    if (url.protocol === "https:" && url.hostname === "encontreadvogados.co.mz" && url.pathname.startsWith("/wp-content/uploads/")) {
+      return url.href;
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+function safeProfile(path) {
+  try {
+    const url = new URL(path);
+    if (url.protocol === "https:" && url.hostname === "encontreadvogados.co.mz" && url.pathname.startsWith("/advogado/")) {
+      return url.href;
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+let directoryPromise = null;
+
+function loadDirectory() {
+  if (!directoryPromise) {
+    directoryPromise = fetch(new URL("directory.json", document.baseURI)).then(async (response) => {
+      if (!response.ok) throw new Error("A lista de advogados não está acessível neste momento.");
+      return response.json();
+    });
+  }
+  return directoryPromise;
+}
+
+async function readJsonResponse(response) {
+  const type = response.headers.get("content-type") || "";
+  if (!type.includes("json")) return null;
+  return response.json();
+}
+
+async function remoteOrLocal(path, payload) {
+  try {
+    const response = await fetch(api(path), payload);
+    const data = await readJsonResponse(response);
+    if (response.ok && data) return data;
+  } catch {
+    // A página publicada não corre a API. O directório local responde.
+  }
+  if (!window.JuriFindLocal) throw new Error("A lista de advogados não está acessível neste momento.");
+  const index = await loadDirectory();
+  if (path === "/api/lawyers" || path === "/api/meta") return window.JuriFindLocal.catalogue(index);
+  return window.JuriFindLocal.recommend(index, payload?.body ? JSON.parse(payload.body) : {});
 }
 
 function fillSelect(select, values, placeholder) {
@@ -119,14 +173,22 @@ function lawyerCard(lawyer) {
   for (const area of areas) chips.append(el("li", null, area));
   if (chips.childElementCount) body.append(chips);
   if (lawyer.explanation) body.append(el("p", "explanation", lawyer.explanation));
+  const actions = el("div", "actions");
   const phone = typeof lawyer.phone === "string" && /^\+258 \d{3} \d{3} \d{3}$/.test(lawyer.phone) ? lawyer.phone : "";
   if (phone) {
-    const actions = el("div", "actions");
     const call = el("a", null, `Ligar ${phone}`);
     call.href = `tel:${phone.replace(/\s/g, "")}`;
     actions.append(call);
-    body.append(actions);
   }
+  const profile = safeProfile(lawyer.profileUrl);
+  if (profile) {
+    const link = el("a", "profile-link", "Ver o perfil publicado");
+    link.href = profile;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    actions.append(link);
+  }
+  if (actions.childElementCount) body.append(actions);
   card.append(body);
   return card;
 }
@@ -255,14 +317,7 @@ async function showLawyers() {
   directoryStatus.textContent = "A carregar advogados…";
   directoryList.replaceChildren();
   try {
-    const response = await fetch(api("/api/lawyers"));
-    let data = {};
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("A lista de advogados não está acessível neste momento.");
-    }
-    if (!response.ok) throw new Error(data.error || "Não foi possível obter os advogados.");
+    const data = await remoteOrLocal("/api/lawyers");
     catalogue = data.lawyers || [];
     paintDirectory("");
     directorySearch.focus();
@@ -310,7 +365,7 @@ async function ask(text) {
     pending.append(el("p", null, "A procurar advogados…"));
     messages.append(pending);
     pending.scrollIntoView({ behavior: "smooth", block: "end" });
-    const response = await fetch(api("/api/recommend"), {
+    const data = await remoteOrLocal("/api/recommend", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -320,13 +375,6 @@ async function ask(text) {
         strictLocation: strictLocation.checked,
       }),
     });
-    let data = {};
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("A lista de advogados não está acessível neste momento.");
-    }
-    if (!response.ok) throw new Error(data.error || "Não foi possível obter os advogados.");
     pending.replaceWith(assistantReply(data));
     description.value = "";
     updateCount();
@@ -351,14 +399,7 @@ function renderChoices(container, values, onPick) {
 
 async function loadMeta() {
   try {
-    const response = await fetch(api("/api/meta"));
-    let data = {};
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("A lista de advogados não está acessível neste momento.");
-    }
-    if (!response.ok) throw new Error(data.error || "Não foi possível preparar a pesquisa.");
+    const data = await remoteOrLocal("/api/meta");
     fillSelect(areaSelect, data.areas, "Identificar a partir do texto");
     fillSelect(locationSelect, data.locations, "Sem preferência");
     renderChoices(areaList, data.areas, (value, button) => {
@@ -473,21 +514,38 @@ updateCount();
 loadMeta();
 
 function openApp(panel) {
-  document.querySelector("#capa").hidden = true;
-  document.querySelector("#aplicacao").hidden = false;
-  document.body.classList.add("is-app");
-  document.querySelector("#site-nav")?.classList.remove("is-open");
-  setActive(panel);
-  if (panel === "advogados") showLawyers();
-  else showView(panel);
+  const capa = document.querySelector("#capa");
+  const app = document.querySelector("#aplicacao");
+  const reveal = () => {
+    capa.hidden = true;
+    capa.classList.remove("is-leaving");
+    app.hidden = false;
+    document.body.classList.add("is-app");
+    document.querySelector("#site-nav")?.classList.remove("is-open");
+    setActive(panel);
+    if (panel === "advogados") showLawyers();
+    else showView(panel);
+  };
+  if (document.body.classList.contains("is-app")) {
+    reveal();
+    return;
+  }
+  capa.classList.add("is-leaving");
+  window.setTimeout(reveal, 280);
 }
 
 function showLanding() {
-  document.querySelector("#capa").hidden = false;
-  document.querySelector("#aplicacao").hidden = true;
-  document.body.classList.remove("is-app");
-  closeMenu();
-  window.scrollTo(0, 0);
+  const capa = document.querySelector("#capa");
+  const app = document.querySelector("#aplicacao");
+  app.classList.add("is-leaving");
+  window.setTimeout(() => {
+    app.hidden = true;
+    app.classList.remove("is-leaving");
+    capa.hidden = false;
+    document.body.classList.remove("is-app");
+    closeMenu();
+    window.scrollTo(0, 0);
+  }, 220);
 }
 
 for (const button of document.querySelectorAll("[data-open]")) {
@@ -576,6 +634,9 @@ function paintScene(index, animate) {
     sources.append(card);
   }
   demoStage.append(ask, think, answer, sources);
+  demoStage.classList.remove("is-switching");
+  void demoStage.offsetWidth;
+  demoStage.classList.add("is-switching");
   const show = () => {
     ask.classList.add("is-in");
     think.classList.add("is-in");
@@ -667,3 +728,18 @@ document.querySelector("#nav-burger")?.addEventListener("click", () => {
   const open = siteNav.classList.toggle("is-open");
   document.querySelector("#nav-burger").setAttribute("aria-expanded", String(open));
 });
+
+const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (motionOk && "IntersectionObserver" in window) {
+  const seen = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("is-shown");
+      seen.unobserve(entry.target);
+    }
+  }, { threshold: 0.18 });
+  for (const node of document.querySelectorAll(".block, .stats, .product, .closing, .marquee")) {
+    node.classList.add("reveal");
+    seen.observe(node);
+  }
+}
